@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Sidebar } from './Sidebar';
 import { BottomNav } from './BottomNav';
 import { CreateHabitModal } from '../habits/CreateHabitModal';
+import { useHabits } from '../../context/HabitContext';
 
 export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const { isAddModalOpen, openAddModal, closeAddModal } = useHabits();
 
     return (
         <div className="flex min-h-screen bg-background text-white">
@@ -14,9 +15,9 @@ export const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children })
                     {children}
                 </div>
             </main>
-            <BottomNav onAddClick={() => setIsModalOpen(true)} />
+            <BottomNav onAddClick={openAddModal} />
 
-            <CreateHabitModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+            <CreateHabitModal isOpen={isAddModalOpen} onClose={closeAddModal} />
         </div>
     );
 };

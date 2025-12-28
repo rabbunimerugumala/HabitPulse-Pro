@@ -10,7 +10,9 @@ interface HabitContextType {
     toggleHabit: (habit: Habit, date?: string) => Promise<void>;
     removeHabit: (id: string) => Promise<void>;
     editHabit: (id: string, updates: Partial<Habit>) => Promise<void>;
-    getHabitsByDate: (date: Date) => Habit[];
+    isAddModalOpen: boolean;
+    openAddModal: () => void;
+    closeAddModal: () => void;
 }
 
 const HabitContext = createContext<HabitContextType | undefined>(undefined);
@@ -19,6 +21,7 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const { user } = useAuth();
     const [habits, setHabits] = useState<Habit[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
     const loadHabits = async () => {
         if (!user) return;
@@ -78,6 +81,9 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         });
     };
 
+    const openAddModal = () => setIsAddModalOpen(true);
+    const closeAddModal = () => setIsAddModalOpen(false);
+
     const value = {
         habits,
         loading,
@@ -85,7 +91,10 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         toggleHabit,
         removeHabit,
         editHabit,
-        getHabitsByDate
+        getHabitsByDate,
+        isAddModalOpen,
+        openAddModal,
+        closeAddModal
     };
 
     return (

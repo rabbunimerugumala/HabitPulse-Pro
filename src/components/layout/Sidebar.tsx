@@ -18,7 +18,7 @@ export const Sidebar = () => {
         <aside className="hidden lg:flex flex-col w-72 h-screen sticky top-0 bg-surface/30 border-r border-white/5 backdrop-blur-xl p-6">
             <div className="flex items-center gap-3 mb-10 px-2">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-neon-blue to-neon-purple flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-neon-blue/20">
-                    HP
+
                 </div>
                 <h1 className="text-xl font-bold font-heading tracking-tight">HabitPulse Pro</h1>
             </div>
