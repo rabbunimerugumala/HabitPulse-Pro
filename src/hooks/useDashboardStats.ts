@@ -21,14 +21,13 @@ export const useDashboardStats = () => {
         // Count unique habits completed today
         const completedToday = habits.filter(h => h.completedDates.includes(todayStr)).length;
 
-        // Total active habits for today (simplified: all habits are "active" for now unless we check frequency)
-        // Ideally checking frequency.days includes today
-        const dayName = format(new Date(), 'EEE');
+        // Total active habits for today (simplified: checking frequency.days includes today)
+        const dayIndex = new Date().getDay(); // 0-6
         const totalActiveToday = habits.filter(h => {
             if (h.frequency.type === 'daily') return true;
             // Weekly/Custom: check if today is in the list
             if (h.frequency.type === 'weekly' || h.frequency.type === 'custom') {
-                return h.frequency.days?.includes(dayName) || (h.frequency.days?.length === 0);
+                return h.frequency.days?.includes(dayIndex) || (h.frequency.days?.length === 0);
             }
             return true;
         }).length;
@@ -44,13 +43,13 @@ export const useDashboardStats = () => {
 
         last7Days.forEach(date => {
             const dStr = format(date, 'yyyy-MM-dd');
-            const dName = format(date, 'EEE');
+            const dIndex = date.getDay();
 
             habits.forEach(h => {
                 // Check if habit should be done on this date
                 let isDue = false;
                 if (h.frequency.type === 'daily') isDue = true;
-                else if (h.frequency.days?.includes(dName) || h.frequency.days?.length === 0) isDue = true;
+                else if (h.frequency.days?.includes(dIndex) || h.frequency.days?.length === 0) isDue = true;
 
                 if (isDue) {
                     totalPotential++;

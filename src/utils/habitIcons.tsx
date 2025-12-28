@@ -1,7 +1,7 @@
 import React from 'react';
 import { FaRunning, FaHeart, FaDumbbell, FaTint, FaClipboardList, FaBriefcase, FaCode, FaClock, FaBook, FaBrain, FaLaptop, FaSpa, FaWallet, FaChartLine, FaAppleAlt, FaCheckSquare, FaLeaf } from 'react-icons/fa';
 
-export const ICON_MAP: Record<string, JSX.Element> = {
+export const ICON_MAP: Record<string, React.ReactNode> = {
     "run": <FaRunning />,
     "heart": <FaHeart />,
     "gym": <FaDumbbell />,
