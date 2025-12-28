@@ -29,42 +29,43 @@ export const Home = () => {
             <div className="space-y-8">
                 {/* 1) Today's Focus Row */}
                 <div>
-                    <div className="mb-4 lg:mb-6 flex flex-wrap items-center justify-between gap-4">
-                        <div className="min-w-0 flex-1">
+                    <div className="mb-4 lg:mb-6 space-y-4">
+                        {/* Row 1: Title & Actions */}
+                        <div className="flex items-center justify-between gap-4">
                             <h2 className="text-xl font-bold whitespace-nowrap">Today's Focus</h2>
-                            <div className="flex gap-2 mt-2 overflow-x-auto pb-2 no-scrollbar">
-                                {categories.map(cat => (
-                                    <button
-                                        key={cat}
-                                        onClick={() => setSelectedCategory(cat)}
-                                        className={`text-sm font-medium border-b-2 pb-1 transition-colors whitespace-nowrap px-1 ${selectedCategory === cat
-                                            ? "text-white border-primary"
-                                            : "text-muted border-transparent hover:text-white"
-                                            }`}
-                                    >
-                                        {cat}
-                                    </button>
-                                ))}
+
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={() => navigate('/calendar')}
+                                    className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs sm:text-sm bg-white/5 hover:bg-white/10 text-primary transition-colors border border-white/5"
+                                >
+                                    <FaCalendarAlt className="w-4 h-4 sm:w-5 sm:h-5" />
+                                    <span>Calendar</span>
+                                </button>
+
+                                <button
+                                    onClick={openAddModal}
+                                    className="hidden sm:flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-primary to-primaryAlt rounded-full text-white text-sm font-semibold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
+                                >
+                                    <span>+</span> Add Habit
+                                </button>
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-3">
-                            {/* Calendar Link */}
-                            <button
-                                onClick={() => navigate('/calendar')}
-                                className="flex items-center gap-1.5 text-sm text-primary hover:text-white font-medium transition-colors"
-                            >
-                                <FaCalendarAlt />
-                                <span className="hidden sm:inline">View Calendar</span>
-                            </button>
-
-                            {/* Desktop Add Habit Button */}
-                            <button
-                                onClick={openAddModal}
-                                className="hidden sm:flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-primary to-primaryAlt rounded-full text-white text-sm font-semibold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
-                            >
-                                <span>+</span> Add Habit
-                            </button>
+                        {/* Row 2: Category Tabs (Wrapping) */}
+                        <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm">
+                            {categories.map(cat => (
+                                <button
+                                    key={cat}
+                                    onClick={() => setSelectedCategory(cat)}
+                                    className={`font-medium border-b-2 pb-1 transition-colors whitespace-nowrap px-1 ${selectedCategory === cat
+                                        ? "text-white border-primary"
+                                        : "text-muted border-transparent hover:text-white"
+                                        }`}
+                                >
+                                    {cat}
+                                </button>
+                            ))}
                         </div>
                     </div>
 
