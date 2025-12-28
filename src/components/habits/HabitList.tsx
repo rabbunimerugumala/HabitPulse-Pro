@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHabits } from '../../context/HabitContext';
 import { format } from 'date-fns';
-import { FaCheckCircle, FaTrash, FaEllipsisV, FaEdit } from 'react-icons/fa';
+import { FaCheckCircle, FaTrash, FaEllipsisV, FaEdit, FaFire, FaClipboardList, FaMagic, FaUndo } from 'react-icons/fa';
 import { clsx } from 'clsx';
 import { type Habit } from '../../services/habitService';
 import { CreateHabitModal } from './CreateHabitModal';
@@ -53,9 +53,9 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
         onToggle(habit);
         // Toast handled by logic? Or here? Let's add here for feedback
         if (!isCompleted) {
-            toast.success('Habit completed! Keep it up! 🔥');
+            toast.success(<span>Habit completed! Keep it up! <FaFire className="inline text-orange-500" /></span>);
         } else {
-            toast('Habit un-completed', { icon: '↩️' });
+            toast(<span>Habit un-completed</span>, { icon: <FaUndo className="text-gray-400" /> });
         }
     };
 
@@ -81,7 +81,7 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
                     "w-12 h-12 rounded-2xl flex items-center justify-center text-2xl transition-all duration-500",
                     isCompleted ? "bg-success/20 text-success rotate-12 scale-110" : "bg-white/5 text-muted group-hover:text-white"
                 )}>
-                    {habit.icon || '📝'}
+                    {habit.icon || <FaClipboardList />}
                 </div>
                 <div>
                     <h3 className={clsx(
@@ -97,8 +97,8 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
             <div className="flex items-center gap-6">
                 <div className="text-right hidden sm:block">
                     <p className="text-xs text-muted font-bold uppercase tracking-wider">Streak</p>
-                    <p className={clsx("font-bold", habit.streak > 0 ? "text-danger" : "text-muted")}>
-                        🔥 {habit.streak}
+                    <p className={clsx("font-bold flex items-center justify-end gap-1", habit.streak > 0 ? "text-danger" : "text-muted")}>
+                        <FaFire /> {habit.streak}
                     </p>
                 </div>
 
@@ -138,7 +138,7 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
                                     onClick={handleToggle}
                                     className="sm:hidden w-full px-4 py-3 text-left text-sm text-gray-200 hover:bg-white/10 border-b border-white/5 flex items-center gap-3 transition-colors"
                                 >
-                                    <FaCheckCircle className={isCompleted ? "text-neon-green" : "text-gray-400"} />
+                                    <FaCheckCircle className={isCompleted ? "text-success" : "text-gray-400"} />
                                     {isCompleted ? 'Mark Undone' : 'Mark Done'}
                                 </button>
 
@@ -187,16 +187,16 @@ export const HabitList = ({ filterCategory = 'All', onHabitClick }: { filterCate
         setEditingHabit(null);
     };
 
-    if (loading) return <div className="text-center text-gray-500 py-10">Loading habits...</div>;
+    if (loading) return <div className="text-center text-muted py-10">Loading habits...</div>;
 
     if (todaysHabits.length === 0) {
         return (
-            <div className="text-center py-10 glass rounded-2xl border-dashed border-2 border-white/10">
-                <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 text-gray-600">
-                    ✨
+            <div className="text-center py-10 glass-card border-dashed border-2 border-border">
+                <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center text-3xl mx-auto mb-4 text-primary">
+                    <FaMagic />
                 </div>
                 <h3 className="text-xl font-bold mb-2">No habits for today</h3>
-                <p className="text-gray-400">Create your first habit to start your journey!</p>
+                <p className="text-muted">Create your first habit to start your journey!</p>
             </div>
         );
     }

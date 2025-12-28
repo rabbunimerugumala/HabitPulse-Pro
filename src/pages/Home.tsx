@@ -81,7 +81,7 @@ export const Home = () => {
                 <div className="pt-2">
                     <div className="glass-card p-8 border border-border">
                         <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                            📅 Consistency Map
+                            <FaCalendarAlt className="text-primary" /> Consistency Map
                         </h3>
                         <Heatmap />
                         <p className="text-xs text-muted mt-4 italic">
