@@ -23,13 +23,7 @@ export const registerWithEmail = async (email: string, pass: string, name: strin
     return data;
 };
 
-export const loginWithGoogle = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-    });
-    if (error) throw error;
-    return data;
-};
+
 
 export const logout = async () => {
     const { error } = await supabase.auth.signOut();
