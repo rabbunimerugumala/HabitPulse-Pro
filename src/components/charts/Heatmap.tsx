@@ -48,10 +48,10 @@ export const Heatmap = () => {
                     {days.map((date) => {
                         const intensity = getIntensity(date);
                         const intensityColor =
-                            intensity === 0 ? "bg-surface/50 border-white/5" :
-                                intensity < 0.4 ? "bg-neon-blue/30 border-neon-blue/30" :
-                                    intensity < 0.7 ? "bg-neon-blue/60 border-neon-blue/50" :
-                                        "bg-neon-blue border-neon-blue shadow-[0_0_8px_#3B82F6]";
+                            intensity === 0 ? "bg-white/5 border-white/5" :
+                                intensity < 0.4 ? "bg-primary/30 border-primary/30" :
+                                    intensity < 0.7 ? "bg-primary/60 border-primary/50" :
+                                        "bg-primary border-primary shadow-[0_0_8px_rgba(59,130,246,0.6)]";
 
                         return (
                             <div
@@ -70,12 +70,12 @@ export const Heatmap = () => {
                     })}
                 </div>
             </div>
-            <div className="flex items-center gap-2 mt-4 text-xs text-gray-400 justify-end">
+            <div className="flex items-center gap-2 mt-4 text-xs text-muted justify-end">
                 <span>Less</span>
-                <div className="w-3 h-3 rounded-sm bg-surface/50 border border-white/5"></div>
-                <div className="w-3 h-3 rounded-sm bg-neon-blue/30 border border-neon-blue/30"></div>
-                <div className="w-3 h-3 rounded-sm bg-neon-blue/60 border border-neon-blue/50"></div>
-                <div className="w-3 h-3 rounded-sm bg-neon-blue border border-neon-blue shadow-[0_0_5px_#3B82F6]"></div>
+                <div className="w-3 h-3 rounded-sm bg-white/5 border border-white/5"></div>
+                <div className="w-3 h-3 rounded-sm bg-primary/30 border border-primary/30"></div>
+                <div className="w-3 h-3 rounded-sm bg-primary/60 border border-primary/50"></div>
+                <div className="w-3 h-3 rounded-sm bg-primary border border-primary shadow-[0_0_5px_rgba(59,130,246,0.6)]"></div>
                 <span>More</span>
             </div>
         </div>

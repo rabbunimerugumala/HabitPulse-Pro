@@ -7,13 +7,21 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: '#0F1419',
-        surface: '#1A1E2E',
+        background: '#020312',
+        surface: '#050816',
+        primary: '#3B82F6',
+        primaryAlt: '#A855F7',
+        accent: '#7B337E',
+        muted: '#9CA3AF',
+        border: 'rgba(255,255,255,0.08)',
+        success: '#22C55E',
+        warning: '#F97316',
+        danger: '#F97316', // mapping danger to orange/warning per request
         neon: {
           blue: '#3B82F6',
           purple: '#A855F7',
-          pink: '#EC4899',
-          green: '#10B981',
+          pink: '#EC4899', // keeping distinct pink
+          green: '#22C55E', // mapping to success
           orange: '#F97316',
         }
       },

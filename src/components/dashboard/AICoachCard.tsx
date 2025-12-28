@@ -37,20 +37,20 @@ export const AICoachCard = () => {
     // "If none exists, show a friendly empty state: 'No insights yet. Generate insights after tracking habits for a few days.'"
 
     return (
-        <div className="glass-card p-5 md:p-6 relative overflow-hidden border-neon-purple/30 group">
+        <div className="glass-card p-5 md:p-6 relative overflow-hidden border-primaryAlt/30 group">
             {/* Background Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-neon-purple/10 to-neon-blue/10 opacity-50 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primaryAlt/10 to-primary/10 opacity-50 group-hover:opacity-100 transition-opacity" />
 
             <div className="relative z-10 flex flex-col md:flex-row gap-4 md:gap-6 items-start md:items-center justify-between">
                 <div className="flex gap-4">
-                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-neon-purple to-neon-blue flex items-center justify-center text-white text-lg md:text-xl shadow-lg shadow-neon-purple/30 shrink-0 mt-1 md:mt-0">
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-primaryAlt to-primary flex items-center justify-center text-white text-lg md:text-xl shadow-lg shadow-primaryAlt/30 shrink-0 mt-1 md:mt-0">
                         <FaRobot />
                     </div>
                     <div>
                         <h3 className="text-base md:text-lg font-bold flex items-center gap-2">
-                            Daily AI Insight <span className="bg-surface/50 px-2 py-0.5 rounded text-[10px] md:text-xs text-neon-purple border border-neon-purple/30">Beta</span>
+                            Daily AI Insight <span className="bg-surface/50 px-2 py-0.5 rounded text-[10px] md:text-xs text-primaryAlt border border-primaryAlt/30">Beta</span>
                         </h3>
-                        <p className="text-sm md:text-base text-gray-300 mt-1 max-w-xl leading-relaxed">
+                        <p className="text-sm md:text-base text-muted mt-1 max-w-xl leading-relaxed">
                             {insight || "No insights yet. Generate insights from the Analytics page after tracking habits for a few days."}
                         </p>
                     </div>

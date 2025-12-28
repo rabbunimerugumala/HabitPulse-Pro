@@ -70,48 +70,47 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
     return (
         <div
             className={clsx(
-                "glass p-4 rounded-xl border-l-4 flex items-center justify-between group cursor-pointer transition-all duration-300 relative select-none",
-                isCompleted ? "opacity-70 grayscale-[0.3]" : "hover:bg-white/5",
-                "border-neon-blue",
+                "glass-card p-5 border border-border flex items-center justify-between group cursor-pointer transition-all duration-300 relative select-none",
+                isCompleted ? "opacity-70 grayscale-[0.3]" : "hover:translate-x-1 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/50",
                 showMenu ? "z-50" : "z-0" // Elevate card when menu is open to prevent clipping
             )}
             onClick={handleCardClick}
         >
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-5">
                 <div className={clsx(
-                    "w-12 h-12 rounded-xl flex items-center justify-center text-2xl transition-all duration-500",
-                    isCompleted ? "bg-neon-green/20 text-neon-green rotate-12 scale-110" : "bg-white/5 text-gray-300"
+                    "w-12 h-12 rounded-2xl flex items-center justify-center text-2xl transition-all duration-500",
+                    isCompleted ? "bg-success/20 text-success rotate-12 scale-110" : "bg-white/5 text-muted group-hover:text-white"
                 )}>
                     {habit.icon || '📝'}
                 </div>
                 <div>
                     <h3 className={clsx(
                         "font-semibold text-lg transition-all",
-                        isCompleted && "line-through text-gray-400"
+                        isCompleted && "line-through text-muted"
                     )}>
                         {habit.name}
                     </h3>
-                    <p className="text-sm text-gray-500">{habit.category} • {habit.frequency.type}</p>
+                    <p className="text-sm text-muted">{habit.category} • {habit.frequency.type}</p>
                 </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
                 <div className="text-right hidden sm:block">
-                    <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Streak</p>
-                    <p className={clsx("font-bold", habit.streak > 0 ? "text-neon-orange" : "text-gray-600")}>
+                    <p className="text-xs text-muted font-bold uppercase tracking-wider">Streak</p>
+                    <p className={clsx("font-bold", habit.streak > 0 ? "text-danger" : "text-muted")}>
                         🔥 {habit.streak}
                     </p>
                 </div>
 
                 {/* Actions Container */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                     {/* Toggle Button (Desktop) */}
                     <button
                         className={clsx(
                             "hidden sm:flex w-10 h-10 rounded-full border-2 items-center justify-center transition-all duration-300",
                             isCompleted
-                                ? "border-neon-green bg-neon-green text-surface scale-110"
-                                : "border-white/20 text-transparent group-hover:border-neon-green group-hover:text-neon-green/50"
+                                ? "border-success bg-success text-surface scale-110"
+                                : "border-white/10 text-transparent group-hover:border-success group-hover:text-success/50"
                         )}
                         onClick={handleToggle}
                         title={isCompleted ? "Unmark" : "Mark Complete"}

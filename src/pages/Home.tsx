@@ -38,8 +38,8 @@ export const Home = () => {
                                         key={cat}
                                         onClick={() => setSelectedCategory(cat)}
                                         className={`text-sm font-medium border-b-2 pb-1 transition-colors whitespace-nowrap px-1 ${selectedCategory === cat
-                                            ? "text-white border-neon-blue"
-                                            : "text-gray-400 border-transparent"
+                                            ? "text-white border-primary"
+                                            : "text-muted border-transparent hover:text-white"
                                             }`}
                                     >
                                         {cat}
@@ -52,7 +52,7 @@ export const Home = () => {
                             {/* Calendar Link */}
                             <button
                                 onClick={() => navigate('/calendar')}
-                                className="flex items-center gap-1.5 text-sm text-neon-blue hover:text-white font-medium transition-colors"
+                                className="flex items-center gap-1.5 text-sm text-primary hover:text-white font-medium transition-colors"
                             >
                                 <FaCalendarAlt />
                                 <span className="hidden sm:inline">View Calendar</span>
@@ -61,7 +61,7 @@ export const Home = () => {
                             {/* Desktop Add Habit Button */}
                             <button
                                 onClick={openAddModal}
-                                className="hidden sm:flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-neon-blue to-neon-purple rounded-full text-white text-sm font-semibold shadow-lg hover:shadow-neon-blue/20 transition-all hover:scale-105"
+                                className="hidden sm:flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-primary to-primaryAlt rounded-full text-white text-sm font-semibold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all"
                             >
                                 <span>+</span> Add Habit
                             </button>
@@ -79,12 +79,12 @@ export const Home = () => {
 
                 {/* 3) Consistency Map Row (Full Width on Desktop) */}
                 <div className="pt-2">
-                    <div className="glass p-6 rounded-2xl border border-white/10">
+                    <div className="glass-card p-8 border border-border">
                         <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
                             📅 Consistency Map
                         </h3>
                         <Heatmap />
-                        <p className="text-xs text-gray-500 mt-4 italic">
+                        <p className="text-xs text-muted mt-4 italic">
                             "Success is the sum of small efforts, repeated day in and day out."
                         </p>
                     </div>

@@ -8,11 +8,11 @@ export const GreetingHeader = () => {
 
     return (
         <div className="mb-8 animate-in slide-in-from-top-4 fade-in duration-500">
-            <p className="text-gray-400 text-sm uppercase tracking-wider font-medium mb-1">{today}</p>
-            <h1 className="text-3xl md:text-4xl font-bold">
-                Hello, <span className="bg-clip-text text-transparent bg-gradient-to-r from-neon-blue to-neon-purple">{firstName}</span> 👋
+            <p className="text-muted text-sm uppercase tracking-wider font-medium mb-1">{today}</p>
+            <h1 className="text-3xl md:text-4xl font-bold font-heading">
+                Hello, <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-primaryAlt">{firstName}</span> 👋
             </h1>
-            <p className="text-gray-400 mt-2">Ready to crush your goals today?</p>
+            <p className="text-muted mt-2 text-lg">Ready to crush your goals today?</p>
         </div>
     );
 };

@@ -17,7 +17,7 @@ interface BottomNavProps {
 export const BottomNav = ({ onAddClick }: BottomNavProps) => {
     return (
         <div className="lg:hidden fixed bottom-4 left-4 right-4 z-50">
-            <nav className="glass bg-[#16161e]/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] h-16 relative flex items-center px-2">
+            <nav className="glass bg-surface/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] h-16 relative flex items-center px-2">
 
                 {/* Left Group */}
                 <div className="flex-1 flex justify-around items-center mr-8">
@@ -30,7 +30,7 @@ export const BottomNav = ({ onAddClick }: BottomNavProps) => {
                 <div className="absolute left-1/2 -translate-x-1/2 -top-6">
                     <button
                         onClick={onAddClick}
-                        className="w-14 h-14 rounded-full bg-neon-blue shadow-[0_0_20px_#3B82F6] flex items-center justify-center text-white text-xl hover:scale-110 active:scale-95 transition-all border-4 border-[#0f0f13]"
+                        className="w-14 h-14 rounded-full bg-gradient-to-r from-primary to-primaryAlt shadow-[0_0_20px_rgba(59,130,246,0.5)] flex items-center justify-center text-white text-xl hover:scale-110 active:scale-95 transition-all border-4 border-background"
                         aria-label="Add Habit"
                     >
                         <FaPlus />
@@ -54,14 +54,14 @@ const NavItem = ({ item }: { item: any }) => (
         to={item.path}
         className={({ isActive }) => clsx(
             "flex-1 flex flex-col items-center justify-end pb-2 gap-1 h-full transition-all relative",
-            isActive ? "text-neon-blue" : "text-gray-500 hover:text-gray-300"
+            isActive ? "text-primary" : "text-muted hover:text-white"
         )}
     >
         {({ isActive }) => (
             <>
                 <item.icon className={clsx("text-2xl transition-transform", isActive && "scale-110")} />
                 {isActive && (
-                    <div className="w-5 h-1 bg-neon-blue shadow-[0_0_10px_#3B82F6] rounded-full mt-1" />
+                    <div className="w-5 h-1 bg-primary shadow-[0_0_10px_#3B82F6] rounded-full mt-1" />
                 )}
             </>
         )}

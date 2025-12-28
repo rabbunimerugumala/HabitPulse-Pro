@@ -10,6 +10,7 @@ interface HabitContextType {
     toggleHabit: (habit: Habit, date?: string) => Promise<void>;
     removeHabit: (id: string) => Promise<void>;
     editHabit: (id: string, updates: Partial<Habit>) => Promise<void>;
+    getHabitsByDate: (date: Date) => Habit[];
     isAddModalOpen: boolean;
     openAddModal: () => void;
     closeAddModal: () => void;

@@ -6,19 +6,19 @@
 
 @layer components {
   .glass {
-    @apply bg-surface/40 backdrop-blur-md border border-white/10 shadow-lg;
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_18px_45px_rgba(0,0,0,0.65)];
   }
 
   .glass-card {
-    @apply glass rounded-2xl;
+    @apply glass rounded-3xl;
   }
 
   .glass-input {
-    @apply bg-surface/30 border border-white/5 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-neon-blue/50 focus:ring-1 focus:ring-neon-blue/50 transition-all;
+    @apply bg-surface/30 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-muted focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all;
   }
 
   .btn-primary {
-    @apply bg-gradient-to-r from-neon-blue to-neon-purple text-white font-semibold rounded-xl shadow-lg shadow-neon-blue/20 hover:scale-[0.98] active:scale-95 transition-all;
+    @apply bg-gradient-to-r from-primary to-primaryAlt text-white font-semibold rounded-full shadow-lg shadow-primary/20 hover:scale-[0.98] active:scale-95 transition-all;
   }
 }
 
