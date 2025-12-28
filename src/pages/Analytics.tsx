@@ -1,27 +1,71 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { AppLayout } from '../components/layout/AppLayout';
 import { CompletionTrendChart } from '../components/charts/CompletionTrendChart';
 import { CategoryPieChart } from '../components/charts/CategoryPieChart';
 import { Button } from '../components/ui/Button';
-import { FaMagic, FaChartLine, FaTrophy } from 'react-icons/fa';
-import { useHabits } from '../context/HabitContext';
+import { FaMagic, FaChartLine, FaTrophy, FaCheckCircle, FaFire } from 'react-icons/fa';
+import { useAnalyticsData } from '../hooks/useAnalyticsData';
+import { useAuth } from '../context/AuthContext';
+import { fetchLatestInsight, createInsight } from '../services/habitService';
+import toast from 'react-hot-toast';
 
 export const Analytics = () => {
-    const { habits } = useHabits();
+    const { trendData, categoryData, totalCompletions, bestHabit, completionRate, totalHabits, loading } = useAnalyticsData();
+    const { user } = useAuth();
     const [aiLoading, setAiLoading] = useState(false);
     const [aiInsight, setAiInsight] = useState<string | null>(null);
 
-    // Mock AI Call
+    // Load initial insight
+    useEffect(() => {
+        const loadInsight = async () => {
+            if (user) {
+                try {
+                    const data = await fetchLatestInsight(user.id);
+                    if (data) setAiInsight(data.summary);
+                } catch (e) {
+                    console.error("Error fetching insight", e);
+                }
+            }
+        };
+        loadInsight();
+    }, [user]);
+
+
     const generateInsights = async () => {
+        if (!user) return;
         setAiLoading(true);
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setAiInsight("Based on your trends, you're most consistent on Tuesdays! 🚀 Try moving your difficult habits to early week mornings. Your 'Morning Yoga' streak is inspiring!");
-        setAiLoading(false);
+        try {
+            // Mock AI Generation - in real app, we'd call an Edge Function
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            const mockInsights = [
+                "You're consistent on Tuesdays! 🚀 Try moving your difficult habits to early week mornings.",
+                "Great progress on '" + (bestHabit?.name || 'your habits') + "'! Consider increasing the difficulty.",
+                "You've completed " + totalCompletions + " habits total. That's awesome momentum!",
+                "Your focus on '" + (categoryData[0]?.name || 'Growth') + "' is paying off. Keep it up!"
+            ];
+            const randomInsight = mockInsights[Math.floor(Math.random() * mockInsights.length)];
+
+            await createInsight(user.id, randomInsight);
+            setAiInsight(randomInsight);
+            toast.success("New insight generated!");
+        } catch (error) {
+            toast.error("Failed to generate insight");
+            console.error(error);
+        } finally {
+            setAiLoading(false);
+        }
     };
 
-    const totalCompletions = habits.reduce((acc, h) => acc + h.completedDates.length, 0);
-    const bestHabit = habits.reduce((prev, current) => (prev.streak > current.streak) ? prev : current, habits[0] || { name: 'None' });
+    if (loading) {
+        return (
+            <AppLayout>
+                <div className="flex items-center justify-center h-[50vh]">
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-neon-blue"></div>
+                </div>
+            </AppLayout>
+        );
+    }
 
     return (
         <AppLayout>
@@ -69,7 +113,7 @@ export const Analytics = () => {
                         <p className="text-gray-400 text-xs uppercase font-bold">Best Streak</p>
                         <div className="flex items-center gap-2 mt-1">
                             <FaFire className="text-neon-orange" />
-                            <p className="text-2xl font-bold">{bestHabit?.streak || 0} <span className="text-xs text-gray-500 font-normal">({bestHabit?.name})</span></p>
+                            <p className="text-2xl font-bold">{bestHabit?.streak || 0} <span className="text-xs text-gray-500 font-normal">({bestHabit?.name || 'None'})</span></p>
                         </div>
                     </div>
 
@@ -77,7 +121,7 @@ export const Analytics = () => {
                         <p className="text-gray-400 text-xs uppercase font-bold">Completion Rate</p>
                         <div className="flex items-center gap-2 mt-1">
                             <FaChartLine className="text-neon-green" />
-                            <p className="text-2xl font-bold">78%</p>
+                            <p className="text-2xl font-bold">{completionRate}%</p>
                         </div>
                     </div>
 
@@ -85,7 +129,7 @@ export const Analytics = () => {
                         <p className="text-gray-400 text-xs uppercase font-bold">Total Habits</p>
                         <div className="flex items-center gap-2 mt-1">
                             <FaTrophy className="text-neon-purple" />
-                            <p className="text-2xl font-bold">{habits.length}</p>
+                            <p className="text-2xl font-bold">{totalHabits}</p>
                         </div>
                     </div>
                 </div>
@@ -94,15 +138,14 @@ export const Analytics = () => {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div className="glass-card p-6">
                         <h3 className="text-lg font-bold mb-4">30-Day Trend</h3>
-                        <CompletionTrendChart />
+                        <CompletionTrendChart data={trendData} />
                     </div>
                     <div className="glass-card p-6">
                         <h3 className="text-lg font-bold mb-4">Focus Distribution</h3>
-                        <CategoryPieChart />
+                        <CategoryPieChart data={categoryData} />
                     </div>
                 </div>
             </div>
         </AppLayout>
     );
 };
-import { FaCheckCircle, FaFire } from 'react-icons/fa';

@@ -149,3 +149,35 @@ export const deleteHabit = async (habitId: string) => {
     const { error } = await supabase.from('habits').delete().eq('id', habitId);
     if (error) throw error;
 };
+
+// --- AI Insights ---
+
+export const fetchLatestInsight = async (userId: string) => {
+    const { data, error } = await supabase
+        .from('ai_insights')
+        .select('*')
+        .eq('user_id', userId)
+        .order('generated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+    if (error) throw error;
+    return data;
+};
+
+export const createInsight = async (userId: string, summary: string, recommendations: any = {}) => {
+    const { data, error } = await supabase
+        .from('ai_insights')
+        .insert({
+            user_id: userId,
+            summary,
+            recommendations,
+            range_start: new Date().toISOString(), // Mock range
+            range_end: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
+};

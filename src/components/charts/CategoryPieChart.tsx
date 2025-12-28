@@ -1,22 +1,9 @@
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { useHabits } from '../../context/HabitContext';
+
 
 const COLORS = ['#3B82F6', '#A855F7', '#EC4899', '#10B981', '#F97316', '#F43F5E'];
 
-export const CategoryPieChart = () => {
-    const { habits } = useHabits();
-
-    // Aggregate completions by category
-    const categoryData = habits.reduce((acc, habit) => {
-        const completions = habit.completedDates.length;
-        if (completions > 0) {
-            acc[habit.category] = (acc[habit.category] || 0) + completions;
-        }
-        return acc;
-    }, {} as Record<string, number>);
-
-    const data = Object.entries(categoryData).map(([name, value]) => ({ name, value }));
-
+export const CategoryPieChart = ({ data }: { data: any[] }) => {
     if (data.length === 0) {
         return (
             <div className="w-full h-[300px] flex items-center justify-center text-gray-500 italic">
@@ -26,8 +13,8 @@ export const CategoryPieChart = () => {
     }
 
     return (
-        <div className="w-full h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
+        <div className="w-full h-[300px] min-w-0">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                 <PieChart>
                     <Pie
                         data={data}

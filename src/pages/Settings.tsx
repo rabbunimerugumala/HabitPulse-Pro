@@ -1,15 +1,13 @@
 import { useNavigate } from 'react-router-dom';
-import { FaMoon, FaDownload, FaSignOutAlt, FaUser } from 'react-icons/fa';
+import { FaDownload, FaSignOutAlt, FaUser } from 'react-icons/fa';
 import { AppLayout } from '../components/layout/AppLayout';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
 import { useHabits } from '../context/HabitContext';
-import { useTheme } from '../context/ThemeContext';
 
 export const Settings = () => {
     const { user, logout } = useAuth();
     const { habits } = useHabits();
-    const { theme, setTheme } = useTheme();
     const navigate = useNavigate();
 
     const handleExportData = () => {
@@ -54,45 +52,7 @@ export const Settings = () => {
                 </div>
 
                 {/* App Preferences */}
-                <div className="glass-card p-6 mb-8">
-                    <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                        <FaMoon className="text-neon-purple" /> Preferences
-                    </h2>
 
-                    <div className="space-y-6">
-                        <div className="flex items-center justify-between p-4 bg-surface/30 rounded-xl border border-white/5">
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center">
-                                    <FaMoon />
-                                </div>
-                                <div>
-                                    <p className="font-semibold">Dark Mode</p>
-                                    <p className="text-sm text-gray-400">Manage theme settings</p>
-                                </div>
-                            </div>
-                            <div className="flex gap-2 text-sm bg-black/20 p-1 rounded-lg">
-                                <button
-                                    onClick={() => setTheme('dark')}
-                                    className={`px-3 py-1 rounded transition-colors ${theme === 'dark' ? 'bg-white/10 text-white shadow' : 'text-gray-500 hover:text-white'}`}
-                                >
-                                    On
-                                </button>
-                                <button
-                                    onClick={() => setTheme('light')}
-                                    className={`px-3 py-1 rounded transition-colors ${theme === 'light' ? 'bg-white/10 text-white shadow' : 'text-gray-500 hover:text-white'}`}
-                                >
-                                    Off
-                                </button>
-                                <button
-                                    onClick={() => setTheme('system')}
-                                    className={`px-3 py-1 rounded transition-colors ${theme === 'system' ? 'bg-white/10 text-white shadow' : 'text-gray-500 hover:text-white'}`}
-                                >
-                                    System
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
                 {/* Data & Account */}
                 <div className="glass-card p-6">

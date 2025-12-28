@@ -25,15 +25,11 @@ export const Home = () => {
     return (
         <AppLayout>
             <GreetingHeader />
-            <StatsRow />
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
                 {/* Left Column: Habits & Coach */}
-                <div className="lg:col-span-2 space-y-8">
-                    <AICoachCard />
-
+                <div className="lg:col-span-2 space-y-4 lg:space-y-8">
                     <div>
-                        <div className="mb-6 flex items-start justify-between gap-2">
+                        <div className="mb-4 lg:mb-6 flex items-start justify-between gap-2">
                             <div className="min-w-0 flex-1 mr-2">
                                 <h2 className="text-xl font-bold whitespace-nowrap">Today's Focus</h2>
                                 <div className="flex gap-2 mt-2 overflow-x-auto pb-2 no-scrollbar">
@@ -43,7 +39,7 @@ export const Home = () => {
                                             onClick={() => setSelectedCategory(cat)}
                                             className={`text-sm font-medium border-b-2 pb-1 transition-colors whitespace-nowrap px-1 ${selectedCategory === cat
                                                 ? "text-white border-neon-blue"
-                                                : "text-gray-400 border-transparent hover:text-white"
+                                                : "text-gray-400 border-transparent"
                                                 }`}
                                         >
                                             {cat}
@@ -64,6 +60,13 @@ export const Home = () => {
 
                         <HabitList filterCategory={selectedCategory} onHabitClick={toggleHabit} />
                     </div>
+
+                    <div className="pt-2">
+                        <h2 className="text-xl font-bold mb-4">Your Progress</h2>
+                        <StatsRow />
+                    </div>
+
+                    <AICoachCard />
                 </div>
 
                 {/* Right Column: Calendar (Desktop Only) */}

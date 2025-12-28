@@ -1,5 +1,6 @@
 import { FaFire, FaCheckCircle, FaChartLine } from 'react-icons/fa';
 import { clsx } from 'clsx';
+import { useDashboardStats } from '../../hooks/useDashboardStats';
 
 const StatCard = ({ icon: Icon, label, value, colorClass, delay }: any) => (
     <div
@@ -21,26 +22,28 @@ const StatCard = ({ icon: Icon, label, value, colorClass, delay }: any) => (
 );
 
 export const StatsRow = () => {
+    const { currentStreak, completedToday, totalActiveToday, weeklyAverage } = useDashboardStats();
+
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <StatCard
                 icon={FaFire}
                 label="Current Streak"
-                value="12 Days"
+                value={`${currentStreak} Days`}
                 colorClass="border-neon-orange"
                 delay={0}
             />
             <StatCard
                 icon={FaCheckCircle}
                 label="Completed Today"
-                value="5/8"
+                value={`${completedToday}/${totalActiveToday}`}
                 colorClass="border-neon-green"
                 delay={100}
             />
             <StatCard
                 icon={FaChartLine}
                 label="Weekly Average"
-                value="85%"
+                value={`${weeklyAverage}%`}
                 colorClass="border-neon-blue"
                 delay={200}
             />

@@ -1,6 +1,4 @@
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { format, subDays, eachDayOfInterval } from 'date-fns';
-import { useHabits } from '../../context/HabitContext';
 
 // Custom Tooltip for dark mode
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -17,27 +15,10 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return null;
 };
 
-export const CompletionTrendChart = () => {
-    const { habits } = useHabits();
-
-    // Generate data for last 30 days
-    const data = eachDayOfInterval({
-        start: subDays(new Date(), 29),
-        end: new Date()
-    }).map(date => {
-        const dateStr = format(date, 'yyyy-MM-dd');
-        const count = habits.reduce((acc, habit) => {
-            return acc + (habit.completedDates.includes(dateStr) ? 1 : 0);
-        }, 0);
-        return {
-            date: format(date, 'MMM dd'),
-            count
-        };
-    });
-
+export const CompletionTrendChart = ({ data }: { data: any[] }) => {
     return (
-        <div className="w-full h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
+        <div className="w-full h-[300px] min-w-0">
+            <ResponsiveContainer width="100%" height="100%" minWidth={0}>
                 <LineChart data={data}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
                     <XAxis

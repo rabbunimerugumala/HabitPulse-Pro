@@ -24,7 +24,7 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         if (!user) return;
         try {
             const data = await fetchHabits(user.id);
-            console.log("Fetched habits:", data);
+            // console.log("Fetched habits:", data); // Removed per user request
             setHabits(data);
         } catch (error) {
             console.error("Error fetching habits:", error);
@@ -40,7 +40,7 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             return;
         }
         loadHabits();
-    }, [user]);
+    }, [user?.id]); // Only refetch if user ID changes, ignoring other metadata updates
 
     const addHabit = async (habitData: any) => {
         if (!user) return;

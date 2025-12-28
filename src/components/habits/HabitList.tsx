@@ -204,7 +204,7 @@ export const HabitList = ({ filterCategory = 'All', onHabitClick }: { filterCate
 
     return (
         <>
-            <div className="space-y-4 animate-in slide-in-from-bottom-4 fade-in duration-500 pb-24 sm:pb-0">
+            <div className="space-y-4 animate-in slide-in-from-bottom-4 fade-in duration-500">
                 {todaysHabits.map((habit) => (
                     <HabitItem
                         key={habit.id}
