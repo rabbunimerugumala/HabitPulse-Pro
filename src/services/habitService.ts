@@ -10,7 +10,7 @@ export interface Habit {
     icon: string;
     frequency: {
         type: 'daily' | 'weekly' | 'custom';
-        days?: string[];
+        days?: number[]; // 0-6 (Sun-Sat)
     };
     reminder: {
         enabled: boolean;

@@ -7,6 +7,7 @@ import { clsx } from 'clsx';
 import { type Habit } from '../../services/habitService';
 import { CreateHabitModal } from './CreateHabitModal';
 import toast from 'react-hot-toast';
+import { getHabitIcon } from '../../utils/habitIcons';
 
 interface HabitItemProps {
     habit: Habit;
@@ -77,11 +78,18 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
             onClick={handleCardClick}
         >
             <div className="flex items-center gap-5">
-                <div className={clsx(
-                    "w-12 h-12 rounded-2xl flex items-center justify-center text-2xl transition-all duration-500",
-                    isCompleted ? "bg-success/20 text-success rotate-12 scale-110" : "bg-white/5 text-muted group-hover:text-white"
-                )}>
-                    {habit.icon || <FaClipboardList />}
+                <div
+                    className={clsx(
+                        "w-12 h-12 rounded-2xl flex items-center justify-center text-2xl transition-all duration-500",
+                        isCompleted ? "bg-success/20 text-success rotate-12 scale-110" : "group-hover:scale-110"
+                    )}
+                    style={!isCompleted ? {
+                        backgroundColor: `${habit.color}20`, // ~12% opacity
+                        color: habit.color,
+                        boxShadow: `0 0 15px ${habit.color}15`
+                    } : undefined}
+                >
+                    {getHabitIcon(habit.icon) || habit.icon || <FaClipboardList />}
                 </div>
                 <div>
                     <h3 className={clsx(

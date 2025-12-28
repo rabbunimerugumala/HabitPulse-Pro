@@ -6,6 +6,7 @@ import { FaTimes } from 'react-icons/fa';
 import { clsx } from 'clsx';
 import { createPortal } from 'react-dom';
 import { type Habit } from '../../services/habitService';
+import { ICON_MAP } from '../../utils/habitIcons';
 
 interface CreateHabitModalProps {
     isOpen: boolean;
@@ -13,9 +14,22 @@ interface CreateHabitModalProps {
     habitToEdit?: Habit | null;
 }
 
-const CATEGORIES = ["Health", "Productivity", "Learning", "Mindfulness", "Relationships", "Finance", "Custom"];
-const ICONS = ["🧘‍♀️", "💧", "🏃‍♂️", "📚", "💊", "💰", "🎨", "💤"];
-const COLORS = ["#3B82F6", "#A855F7", "#EC4899", "#10B981", "#F97316"];
+const CATEGORIES = ["Health", "Productivity", "Learning", "Mindfulness", "Finance", "Relationships", "Custom"];
+
+// Reverse lookup for UI rendering of options
+const ICON_KEYS = Object.keys(ICON_MAP);
+
+const COLORS = [
+    "#3B82F6", // Blue
+    "#A855F7", // Purple
+    "#EC4899", // Pink
+    "#10B981", // Green
+    "#14b8a6", // Teal
+    "#F97316", // Orange
+    "#EAB308", // Yellow
+];
+
+const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
 
 export const CreateHabitModal = ({ isOpen, onClose, habitToEdit }: CreateHabitModalProps) => {
     const { addHabit, editHabit } = useHabits();
@@ -25,42 +39,65 @@ export const CreateHabitModal = ({ isOpen, onClose, habitToEdit }: CreateHabitMo
     // Form Data
     const [name, setName] = useState('');
     const [category, setCategory] = useState(CATEGORIES[0]);
-    const [icon, setIcon] = useState(ICONS[0]);
+    const [iconKey, setIconKey] = useState("run"); // Default key
     const [color, setColor] = useState(COLORS[0]);
-    const [frequency, setFrequency] = useState<'daily' | 'weekly' | 'custom'>('daily');
-    // We could add days/reminders here if we expand the UI
+    const [frequency, setFrequency] = useState<'daily' | 'weekly'>('daily');
+    const [selectedDays, setSelectedDays] = useState<number[]>([]); // 0-6
+    // Reminder removed
 
-    // Load initial data when editing
+    // Load initial data
     useEffect(() => {
         if (habitToEdit) {
             setName(habitToEdit.name);
             setCategory(habitToEdit.category);
-            setIcon(habitToEdit.icon);
+            // If habit has emoji, try to map or default
+            setIconKey(ICON_MAP[habitToEdit.icon] ? habitToEdit.icon : "run");
+
             setColor(habitToEdit.color);
-            setFrequency(habitToEdit.frequency.type);
+            setFrequency(habitToEdit.frequency.type === 'custom' ? 'weekly' : habitToEdit.frequency.type as 'daily' | 'weekly');
+            setSelectedDays(habitToEdit.frequency.days || []);
         } else {
-            // Reset if creating new
             setName('');
             setCategory(CATEGORIES[0]);
-            setIcon(ICONS[0]);
+            setIconKey("run");
             setColor(COLORS[0]);
             setFrequency('daily');
+            setSelectedDays([]);
         }
         setStep(1);
     }, [habitToEdit, isOpen]);
+
+    // Handle Day Toggle
+    const toggleDay = (dayIndex: number) => {
+        if (selectedDays.includes(dayIndex)) {
+            setSelectedDays(selectedDays.filter(d => d !== dayIndex));
+        } else {
+            setSelectedDays([...selectedDays, dayIndex].sort());
+        }
+    };
 
     if (!isOpen) return null;
 
     const handleSubmit = async () => {
         setLoading(true);
         try {
+            const finalDays = frequency === 'daily'
+                ? [0, 1, 2, 3, 4, 5, 6]
+                : selectedDays;
+
             const habitData = {
                 name,
                 category,
-                icon,
+                icon: iconKey,
                 color,
-                frequency: { type: frequency, days: [] }, // simplified for MVP
-                reminder: { enabled: false, time: "09:00" },
+                frequency: {
+                    type: frequency,
+                    days: finalDays
+                },
+                reminder: {
+                    enabled: false,
+                    time: "09:00"
+                },
             };
 
             if (habitToEdit && habitToEdit.id) {
@@ -70,9 +107,6 @@ export const CreateHabitModal = ({ isOpen, onClose, habitToEdit }: CreateHabitMo
             }
 
             onClose();
-            // Reset form
-            if (!habitToEdit) setName('');
-            setStep(1);
         } catch (e: any) {
             console.error(e);
             alert(`Failed to save habit: ${e.message}`);
@@ -81,115 +115,180 @@ export const CreateHabitModal = ({ isOpen, onClose, habitToEdit }: CreateHabitMo
         }
     };
 
+    const isStep1Valid = name.trim().length > 0;
+    const isStep2Valid = frequency === 'daily' || selectedDays.length > 0;
+
     return createPortal(
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-background/80 backdrop-blur-sm" onClick={onClose} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+            <div
+                className="relative w-full max-w-md md:max-w-xl glass-card max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200"
+                onClick={e => e.stopPropagation()}
+            >
+                <div className="p-5 md:p-8">
+                    <button onClick={onClose} className="absolute top-4 right-4 text-muted hover:text-white transition-colors p-2">
+                        <FaTimes />
+                    </button>
 
-            <div className="relative w-full max-w-lg glass-card p-6 md:p-8 animate-in zoom-in-95 duration-200">
-                <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-white">
-                    <FaTimes />
-                </button>
+                    <h2 className="text-xl md:text-2xl font-bold font-heading mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary to-primaryAlt w-fit">
+                        {habitToEdit ? 'Edit Habit' : 'Create New Habit'}
+                    </h2>
 
-                <h2 className="text-2xl font-bold mb-6">
-                    {habitToEdit ? 'Edit Habit' : 'Create New Habit'}
-                </h2>
-
-                {step === 1 && (
-                    <div className="space-y-6">
-                        <Input
-                            label="Habit Name"
-                            placeholder="e.g. Morning Yoga"
-                            value={name}
-                            onChange={e => setName(e.target.value)}
-                            autoFocus
-                        />
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Category</label>
-                            <div className="flex flex-wrap gap-2">
-                                {CATEGORIES.map(cat => (
-                                    <button
-                                        key={cat}
-                                        onClick={() => setCategory(cat)}
-                                        className={clsx(
-                                            "px-3 py-1.5 rounded-lg text-sm transition-colors",
-                                            category === cat ? "bg-neon-blue text-white" : "bg-surface border border-white/10 text-gray-400 hover:bg-white/5"
-                                        )}
-                                    >
-                                        {cat}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Icon</label>
-                            <div className="flex gap-2 overflow-x-auto pb-2">
-                                {ICONS.map(ic => (
-                                    <button
-                                        key={ic}
-                                        onClick={() => setIcon(ic)}
-                                        className={clsx(
-                                            "w-10 h-10 rounded-xl flex items-center justify-center text-xl transition-all",
-                                            icon === ic ? "bg-white/10 border-2 border-neon-blue scale-110" : "bg-surface border border-white/10 opacity-60"
-                                        )}
-                                    >
-                                        {ic}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <Button onClick={() => setStep(2)} disabled={!name} className="w-full">Next: Details</Button>
+                    {/* Step Indicator */}
+                    <div className="flex items-center gap-2 mb-6 md:mb-8">
+                        <div className={clsx("h-1 flex-1 rounded-full transition-colors", step >= 1 ? "bg-primary" : "bg-white/10")} />
+                        <div className={clsx("h-1 flex-1 rounded-full transition-colors", step >= 2 ? "bg-primary" : "bg-white/10")} />
                     </div>
-                )}
 
-                {step === 2 && (
-                    <div className="space-y-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Frequency</label>
-                            <div className="grid grid-cols-3 gap-3">
-                                {['daily', 'weekly', 'custom'].map(f => (
+                    {step === 1 && (
+                        <div className="space-y-5 md:space-y-6">
+                            <Input
+                                label="Habit Name"
+                                placeholder="e.g. Morning Meditation"
+                                value={name}
+                                onChange={e => setName(e.target.value)}
+                                autoFocus
+                            />
+
+                            {/* Category */}
+                            <div>
+                                <label className="block text-sm font-medium text-muted mb-2">Category</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {CATEGORIES.map(cat => (
+                                        <button
+                                            key={cat}
+                                            onClick={() => setCategory(cat)}
+                                            className={clsx(
+                                                "px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-xs md:text-sm font-medium transition-all",
+                                                category === cat
+                                                    ? "bg-primary text-white shadow-lg shadow-primary/25"
+                                                    : "bg-white/5 text-muted hover:bg-white/10 hover:text-white border border-white/5"
+                                            )}
+                                        >
+                                            {cat}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Icon Picker */}
+                            <div>
+                                <label className="block text-sm font-medium text-muted mb-2">Icon</label>
+                                <div className="grid grid-cols-5 md:grid-cols-7 gap-2 md:gap-3">
+                                    {ICON_KEYS.map((key) => (
+                                        <button
+                                            key={key}
+                                            onClick={() => setIconKey(key)}
+                                            className={clsx(
+                                                "aspect-square rounded-xl flex items-center justify-center text-lg md:text-xl transition-all border",
+                                                iconKey === key
+                                                    ? "bg-primary/20 border-primary text-primary shadow-[0_0_15px_rgba(59,130,246,0.2)] scale-110"
+                                                    : "bg-surface border-white/5 text-muted hover:border-white/20 hover:text-white"
+                                            )}
+                                            title={key}
+                                        >
+                                            {ICON_MAP[key]}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="pt-2 md:pt-4">
+                                <Button onClick={() => setStep(2)} disabled={!isStep1Valid} className="w-full py-3 md:py-3.5 text-base">
+                                    Next Step
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+
+                    {step === 2 && (
+                        <div className="space-y-6 md:space-y-8">
+
+                            {/* Frequency Section */}
+                            <div className="bg-white/5 p-4 rounded-2xl border border-white/5">
+                                <label className="block text-sm font-medium text-muted mb-3">Frequency</label>
+                                <div className="flex p-1 bg-black/20 rounded-xl mb-4">
                                     <button
-                                        key={f}
-                                        onClick={() => setFrequency(f as 'daily' | 'weekly' | 'custom')}
+                                        onClick={() => setFrequency('daily')}
                                         className={clsx(
-                                            "py-3 rounded-xl border capitalise transition-colors",
-                                            frequency === f ? "border-neon-blue bg-neon-blue/10 text-neon-blue" : "border-white/10 bg-surface/50 text-gray-400"
+                                            "flex-1 py-2 rounded-lg text-xs md:text-sm font-medium transition-all",
+                                            frequency === 'daily' ? "bg-surface text-white shadow-md" : "text-muted hover:text-white"
                                         )}
                                     >
-                                        {f.charAt(0).toUpperCase() + f.slice(1)}
+                                        Every Day
                                     </button>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Color</label>
-                            <div className="flex gap-3">
-                                {COLORS.map(c => (
                                     <button
-                                        key={c}
-                                        onClick={() => setColor(c)}
+                                        onClick={() => setFrequency('weekly')}
                                         className={clsx(
-                                            "w-8 h-8 rounded-full border-2 transition-transform",
-                                            color === c ? "border-white scale-110 shadow-[0_0_10px_currentColor]" : "border-transparent"
+                                            "flex-1 py-2 rounded-lg text-xs md:text-sm font-medium transition-all",
+                                            frequency === 'weekly' ? "bg-surface text-white shadow-md" : "text-muted hover:text-white"
                                         )}
-                                        style={{ backgroundColor: c, color: c }}
-                                    />
-                                ))}
+                                    >
+                                        Specific Days
+                                    </button>
+                                </div>
+
+                                {/* Day Picker */}
+                                {frequency === 'weekly' && (
+                                    <div className="flex justify-between gap-1 md:gap-2 animate-in slide-in-from-top-2">
+                                        {WEEKDAYS.map((day, index) => {
+                                            const isSelected = selectedDays.includes(index);
+                                            return (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => toggleDay(index)}
+                                                    className={clsx(
+                                                        "w-9 h-9 md:w-11 md:h-11 rounded-lg md:rounded-xl flex items-center justify-center text-xs md:text-sm font-bold transition-all border",
+                                                        isSelected
+                                                            ? "bg-primary border-primary text-white shadow-lg shadow-primary/25"
+                                                            : "bg-transparent border-white/10 text-muted hover:border-white/30"
+                                                    )}
+                                                >
+                                                    {day}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+
+                                {/* Summary */}
+                                <p className="text-xs text-muted mt-3 text-center">
+                                    {frequency === 'daily'
+                                        ? "Repeats every day"
+                                        : selectedDays.length > 0
+                                            ? `Repeats on ${selectedDays.length} days per week`
+                                            : "Select at least one day"
+                                    }
+                                </p>
+                            </div>
+
+                            {/* Color Row - Simplified spacing */}
+                            <div>
+                                <label className="block text-sm font-medium text-muted mb-3">Color</label>
+                                <div className="flex flex-wrap gap-3 md:gap-4 justify-center md:justify-start">
+                                    {COLORS.map(c => (
+                                        <button
+                                            key={c}
+                                            onClick={() => setColor(c)}
+                                            className={clsx(
+                                                "w-8 h-8 md:w-10 md:h-10 rounded-full border-2 transition-all",
+                                                color === c ? "border-white scale-110 shadow-[0_0_12px_currentColor]" : "border-transparent opacity-80 hover:opacity-100 hover:scale-110"
+                                            )}
+                                            style={{ backgroundColor: c, color: c }}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex flex-col sm:flex-row gap-3 pt-2 md:pt-4">
+                                <Button variant="secondary" onClick={() => setStep(1)} className="w-full sm:flex-1 py-3">Back</Button>
+                                <Button onClick={handleSubmit} className="w-full sm:flex-1 py-3" isLoading={loading} disabled={!isStep2Valid}>
+                                    {habitToEdit ? 'Save Changes' : 'Create Habit'}
+                                </Button>
                             </div>
                         </div>
-
-                        <div className="flex gap-3">
-                            <Button variant="secondary" onClick={() => setStep(1)} className="flex-1">Back</Button>
-                            <Button onClick={handleSubmit} className="flex-1" isLoading={loading}>
-                                {habitToEdit ? 'Save Changes' : 'Create Habit'}
-                            </Button>
-                        </div>
-                    </div>
-                )}
-
+                    )}
+                </div>
             </div>
         </div>,
         document.body

@@ -69,14 +69,14 @@ export const HabitProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     };
 
     const getHabitsByDate = (date: Date) => {
-        // Filter habits that should be done on this date based on data
-        // For MVP we just show all active habits, but you'd filter by frequency here
-        const dayName = format(date, 'EEE'); // Mon, Tue...
+        const dayIndex = date.getDay(); // 0 = Sun, 1 = Mon...
         return habits.filter(h => {
             if (h.frequency.type === 'daily') return true;
             if (h.frequency.type === 'weekly' || h.frequency.type === 'custom') {
-                // Return true if days include today OR if days is empty (fallback for MVP)
-                return h.frequency.days?.includes(dayName) || (h.frequency.days?.length === 0);
+                // Check if specific days are defined. If empty/null, assume daily/all (or strictly requires selection?)
+                // For weekly alarm logic: strictly match selected days.
+                if (!h.frequency.days || h.frequency.days.length === 0) return true; // Fallback
+                return h.frequency.days.includes(dayIndex);
             }
             return true;
         });
