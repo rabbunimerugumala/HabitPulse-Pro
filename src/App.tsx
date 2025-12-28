@@ -10,6 +10,8 @@ import { Habits } from './pages/Habits';
 import { Calendar } from './pages/Calendar';
 import { Analytics } from './pages/Analytics';
 import { Settings } from './pages/Settings';
+import { ProfileSettings } from './pages/settings/ProfileSettings';
+import { HabitDetail } from './pages/HabitDetail';
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
@@ -58,6 +60,16 @@ function App() {
             <Route path="/settings" element={
               <ProtectedRoute>
                 <Settings />
+              </ProtectedRoute>
+            } />
+            <Route path="/settings/profile" element={
+              <ProtectedRoute>
+                <ProfileSettings />
+              </ProtectedRoute>
+            } />
+            <Route path="/habits/:id" element={
+              <ProtectedRoute>
+                <HabitDetail />
               </ProtectedRoute>
             } />
           </Routes>

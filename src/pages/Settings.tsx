@@ -1,13 +1,16 @@
+import { useNavigate } from 'react-router-dom';
+import { FaMoon, FaDownload, FaSignOutAlt, FaUser } from 'react-icons/fa';
 import { AppLayout } from '../components/layout/AppLayout';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { FaMoon, FaBell, FaDownload, FaSignOutAlt, FaUser } from 'react-icons/fa';
 import { useHabits } from '../context/HabitContext';
+import { useTheme } from '../context/ThemeContext';
 
 export const Settings = () => {
     const { user, logout } = useAuth();
     const { habits } = useHabits();
+    const { theme, setTheme } = useTheme();
+    const navigate = useNavigate();
 
     const handleExportData = () => {
         const dataStr = JSON.stringify(habits, null, 2);
@@ -25,12 +28,18 @@ export const Settings = () => {
                 <h1 className="text-3xl font-bold mb-8">Settings</h1>
 
                 {/* Profile Section */}
-                <div className="glass-card p-6 mb-8">
-                    <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                        <FaUser className="text-neon-blue" /> Profile
-                    </h2>
-                    <div className="flex items-center gap-6 mb-6">
-                        <div className="w-20 h-20 rounded-full bg-surface border-2 border-neon-blue/50 flex items-center justify-center text-3xl overflow-hidden">
+                <div
+                    onClick={() => navigate('/settings/profile')}
+                    className="glass-card p-6 mb-8 cursor-pointer hover:border-neon-blue/50 transition-colors group"
+                >
+                    <div className="flex items-center justify-between mb-6">
+                        <h2 className="text-xl font-bold flex items-center gap-2">
+                            <FaUser className="text-neon-blue" /> Profile
+                        </h2>
+                        <span className="text-sm text-gray-400 group-hover:text-neon-blue transition-colors">Edit Profile →</span>
+                    </div>
+                    <div className="flex items-center gap-6">
+                        <div className="w-16 h-16 rounded-full bg-surface border-2 border-neon-blue/50 flex items-center justify-center text-2xl overflow-hidden">
                             {user?.user_metadata?.picture ? (
                                 <img src={user.user_metadata.picture} alt="Profile" className="w-full h-full object-cover" />
                             ) : (
@@ -40,20 +49,14 @@ export const Settings = () => {
                         <div>
                             <h3 className="text-lg font-bold">{user?.user_metadata?.name || 'User'}</h3>
                             <p className="text-gray-400">{user?.email}</p>
-                            <button className="text-sm text-neon-blue mt-1 hover:underline">Change Avatar</button>
                         </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Input label="Display Name" defaultValue={user?.user_metadata?.name || ''} />
-                        <Input label="Email" defaultValue={user?.email || ''} disabled />
                     </div>
                 </div>
 
                 {/* App Preferences */}
                 <div className="glass-card p-6 mb-8">
                     <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                        <FaMoo className="text-neon-purple" /> Preferences
+                        <FaMoon className="text-neon-purple" /> Preferences
                     </h2>
 
                     <div className="space-y-6">
@@ -68,25 +71,24 @@ export const Settings = () => {
                                 </div>
                             </div>
                             <div className="flex gap-2 text-sm bg-black/20 p-1 rounded-lg">
-                                <button className="px-3 py-1 bg-white/10 rounded text-white shadow">On</button>
-                                <button className="px-3 py-1 text-gray-500 hover:text-white">off</button>
-                                <button className="px-3 py-1 text-gray-500 hover:text-white">System</button>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center justify-between p-4 bg-surface/30 rounded-xl border border-white/5">
-                            <div className="flex items-center gap-4">
-                                <div className="w-10 h-10 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center">
-                                    <FaBell />
-                                </div>
-                                <div>
-                                    <p className="font-semibold">Notifications</p>
-                                    <p className="text-sm text-gray-400">Daily reminders & updates</p>
-                                </div>
-                            </div>
-                            {/* Toggle Switch Mock */}
-                            <div className="w-12 h-6 bg-neon-green/20 rounded-full relative cursor-pointer border border-neon-green/50">
-                                <div className="absolute right-0.5 top-0.5 w-5 h-5 bg-neon-green rounded-full shadow-sm" />
+                                <button
+                                    onClick={() => setTheme('dark')}
+                                    className={`px-3 py-1 rounded transition-colors ${theme === 'dark' ? 'bg-white/10 text-white shadow' : 'text-gray-500 hover:text-white'}`}
+                                >
+                                    On
+                                </button>
+                                <button
+                                    onClick={() => setTheme('light')}
+                                    className={`px-3 py-1 rounded transition-colors ${theme === 'light' ? 'bg-white/10 text-white shadow' : 'text-gray-500 hover:text-white'}`}
+                                >
+                                    Off
+                                </button>
+                                <button
+                                    onClick={() => setTheme('system')}
+                                    className={`px-3 py-1 rounded transition-colors ${theme === 'system' ? 'bg-white/10 text-white shadow' : 'text-gray-500 hover:text-white'}`}
+                                >
+                                    System
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -113,4 +115,3 @@ export const Settings = () => {
         </AppLayout>
     );
 };
-import { FaMoon as FaMoo } from 'react-icons/fa'; // Typo fix alias just in case

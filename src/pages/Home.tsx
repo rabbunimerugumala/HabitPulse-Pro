@@ -11,7 +11,7 @@ import { FaCalendarAlt } from 'react-icons/fa';
 
 export const Home = () => {
     const [selectedCategory, setSelectedCategory] = useState("All");
-    const { getHabitsByDate } = useHabits();
+    const { getHabitsByDate, toggleHabit } = useHabits();
     const navigate = useNavigate();
 
     const todaysHabits = getHabitsByDate(new Date());
@@ -42,8 +42,8 @@ export const Home = () => {
                                             key={cat}
                                             onClick={() => setSelectedCategory(cat)}
                                             className={`text-sm font-medium border-b-2 pb-1 transition-colors whitespace-nowrap px-1 ${selectedCategory === cat
-                                                    ? "text-white border-neon-blue"
-                                                    : "text-gray-400 border-transparent hover:text-white"
+                                                ? "text-white border-neon-blue"
+                                                : "text-gray-400 border-transparent hover:text-white"
                                                 }`}
                                         >
                                             {cat}
@@ -62,7 +62,7 @@ export const Home = () => {
                             </button>
                         </div>
 
-                        <HabitList filterCategory={selectedCategory} />
+                        <HabitList filterCategory={selectedCategory} onHabitClick={toggleHabit} />
                     </div>
                 </div>
 

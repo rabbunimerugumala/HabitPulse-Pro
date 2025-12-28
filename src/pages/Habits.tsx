@@ -16,9 +16,11 @@ export const Habits = () => {
                         <h1 className="text-3xl font-bold mb-2">My Habits</h1>
                         <p className="text-gray-400">Manage and track your daily routines.</p>
                     </div>
-                    <Button onClick={() => setIsModalOpen(true)}>
-                        <FaPlus className="mr-2" /> New Habit
-                    </Button>
+                    <div className="hidden lg:block">
+                        <Button onClick={() => setIsModalOpen(true)}>
+                            <FaPlus className="mr-2" /> New Habit
+                        </Button>
+                    </div>
                 </div>
 
                 <HabitList />

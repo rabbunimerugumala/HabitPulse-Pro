@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useHabits } from '../../context/HabitContext';
 import { format } from 'date-fns';
 import { FaCheckCircle, FaTrash, FaEllipsisV, FaEdit } from 'react-icons/fa';
@@ -12,12 +13,14 @@ interface HabitItemProps {
     onToggle: (habit: Habit) => void;
     onDelete: (id: string) => void;
     onEdit: (habit: Habit) => void;
+    onHabitClick?: (habit: Habit) => void;
 }
 
-const HabitItem = ({ habit, onToggle, onDelete, onEdit }: HabitItemProps) => {
+const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitItemProps) => {
     const isCompleted = habit.completedDates.includes(format(new Date(), 'yyyy-MM-dd'));
     const [showMenu, setShowMenu] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
+    const navigate = useNavigate();
 
     // Close menu when clicking outside
     useEffect(() => {
@@ -56,6 +59,14 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit }: HabitItemProps) => {
         }
     };
 
+    const handleCardClick = () => {
+        if (onHabitClick) {
+            onHabitClick(habit);
+        } else {
+            navigate(`/habits/${habit.id}`);
+        }
+    };
+
     return (
         <div
             className={clsx(
@@ -64,7 +75,7 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit }: HabitItemProps) => {
                 "border-neon-blue",
                 showMenu ? "z-50" : "z-0" // Elevate card when menu is open to prevent clipping
             )}
-            onClick={() => onToggle(habit)}
+            onClick={handleCardClick}
         >
             <div className="flex items-center gap-4">
                 <div className={clsx(
@@ -154,7 +165,7 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit }: HabitItemProps) => {
     );
 };
 
-export const HabitList = ({ filterCategory = 'All' }: { filterCategory?: string }) => {
+export const HabitList = ({ filterCategory = 'All', onHabitClick }: { filterCategory?: string, onHabitClick?: (habit: Habit) => void }) => {
     const { loading, toggleHabit, removeHabit, getHabitsByDate } = useHabits();
     const allTodaysHabits = getHabitsByDate(new Date());
 
@@ -201,6 +212,7 @@ export const HabitList = ({ filterCategory = 'All' }: { filterCategory?: string 
                         onToggle={toggleHabit}
                         onDelete={removeHabit}
                         onEdit={handleEdit}
+                        onHabitClick={onHabitClick}
                     />
                 ))}
             </div>
