@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHabits } from '../../context/HabitContext';
-import { format } from 'date-fns';
-import { FaCheckCircle, FaTrash, FaEllipsisV, FaEdit, FaFire, FaClipboardList, FaMagic, FaUndo } from 'react-icons/fa';
+import { format, startOfWeek, addDays } from 'date-fns';
+import { FaTrash, FaEllipsisV, FaEdit, FaFire, FaClipboardList, FaMagic, FaUndo } from 'react-icons/fa';
 import { clsx } from 'clsx';
 import { type Habit } from '../../services/habitService';
 import { CreateHabitModal } from './CreateHabitModal';
@@ -11,20 +11,27 @@ import { getHabitIcon } from '../../utils/habitIcons';
 
 interface HabitItemProps {
     habit: Habit;
-    onToggle: (habit: Habit) => void;
+    onToggle: (habit: Habit, dateStr?: string) => void;
     onDelete: (id: string) => void;
     onEdit: (habit: Habit) => void;
     onHabitClick?: (habit: Habit) => void;
 }
 
 const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitItemProps) => {
-    const isCompleted = habit.completedDates.includes(format(new Date(), 'yyyy-MM-dd'));
+    // Current date logic
+    const today = new Date();
+    const formattedToday = format(today, 'yyyy-MM-dd');
+    const isCompletedToday = habit.completedDates.includes(formattedToday);
+
+    // Week logic: Start from Monday
+    const startOfCurrentWeek = startOfWeek(today, { weekStartsOn: 1 });
+
     const [showMenu, setShowMenu] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
 
-    // Local state for the intermediate "marked" (check) step
-    const [isMarked, setIsMarked] = useState(false);
+    const [isGlowing, setIsGlowing] = useState(false);
+    const [glowTimeout, setGlowTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
 
     // Close menu when clicking outside
     useEffect(() => {
@@ -52,16 +59,6 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
         setShowMenu(false);
     };
 
-    const handleToggle = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        onToggle(habit);
-        if (!isCompleted) {
-            toast.success(<span>Habit completed! Keep it up! <FaFire className="inline text-orange-500" /></span>);
-        } else {
-            toast(<span>Habit un-completed</span>, { icon: <FaUndo className="text-gray-400" /> });
-        }
-    };
-
     const handleCardClick = () => {
         if (onHabitClick) {
             onHabitClick(habit);
@@ -70,44 +67,76 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
         }
     };
 
-    const handleCircleClick = (e: React.MouseEvent, index: number) => {
-        e.stopPropagation(); // Ensure we don't trigger the card click
+    const handleCircleClick = (e: React.MouseEvent, dateStr: string) => {
+        e.stopPropagation();
 
-        // Logic: specific dot interaction
-        // If clicking the immediate next dot (current streak index)
-        if (index === habit.streak) {
-            if (!isMarked) {
-                setIsMarked(true); // Step 1: Show check
-            } else {
-                handleToggle(e); // Step 2: Complete (Green)
-                setIsMarked(false); // Reset local mark
-            }
-        }
-        // If clicking the current "Today" dot (last completed) to undo
-        else if (index === habit.streak - 1 && isCompleted) {
-            handleToggle(e); // Undo
+        // Trigger Click Glow
+        if (glowTimeout) clearTimeout(glowTimeout);
+        setIsGlowing(true);
+        const timeoutId = setTimeout(() => {
+            setIsGlowing(false);
+        }, 2000);
+        setGlowTimeout(timeoutId);
+
+        // Toggle specific date
+        onToggle(habit, dateStr);
+
+        const wasCompleted = habit.completedDates.includes(dateStr);
+        if (!wasCompleted) {
+            toast.success(<span>Habit completed! Keep it up! <FaFire className="inline text-orange-500" /></span>);
+        } else {
+            toast(<span>Habit un-completed</span>, { icon: <FaUndo className="text-gray-400" /> });
         }
     };
+
+    const hoverGlow = `${habit.color}4d`; // ~30% alpha for hover
+    const clickGlow = `${habit.color}66`; // ~40% alpha for click
 
     return (
         <div
             className={clsx(
-                "flex items-center justify-between py-3 px-4 lg:py-4 lg:px-6 rounded-2xl bg-white/5 hover:bg-white/8 border border-white/10 gap-3 lg:gap-4 mt-3 select-none transition-all duration-200",
-                isCompleted && "opacity-80"
+                "group relative flex items-center justify-between py-3 px-4 lg:py-4 lg:px-6 rounded-2xl bg-white/5 hover:bg-white/8 border border-white/10 gap-3 lg:gap-4 mt-3 select-none transition-all duration-500 ease-out hover:scale-[1.02] hover:shadow-2xl",
+                isCompletedToday && "opacity-90",
+                // CLICK GLOW OVERRIDES
+                isGlowing && "shadow-[0_0_40px_var(--click-glow)] border-[var(--click-glow)] scale-105 bg-white/10"
             )}
+            style={{
+                '--habit-color': habit.color,
+                '--habit-glow': hoverGlow,
+                '--click-glow': clickGlow
+            } as React.CSSProperties}
             onClick={handleCardClick}
         >
+            <div className={clsx(
+                // Base layout classes
+                "absolute inset-0 rounded-2xl border transition-all duration-500 pointer-events-none",
+                "border-transparent group-hover:border-[var(--habit-glow)]",
+                "group-hover:shadow-[0_0_30px_var(--habit-glow)]"
+            )} />
+
+            {/* CONTENT Z-INDEX wrapper to sit above the hover-border div if needed,
+                but actually the border div is pointer-events-none so it's fine overlaying or underlaying.
+                Let's just apply the hover effects to the PARENT directly for simplicity if possible.
+                Tailwind arbitrary values with variables work: hover:border-[var(--habit-glow)]
+            */}
+            {/* <style>{`
+                .group:hover {
+                    border-color: var(--habit-glow) !important;
+                    box-shadow: 0 0 30px var(--habit-glow) !important;
+                }
+            `}</style> */}
+
             {/* LEFT: Icon + Text (Responsive sizes) */}
-            <div className="flex items-center gap-2.5 lg:gap-4 flex-1 min-w-0">
+            <div className="flex items-center gap-2.5 lg:gap-4 flex-1 min-w-0 z-10">
                 <div
                     className={clsx(
-                        "w-10 h-10 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center border-2 p-1.5 lg:p-3 shrink-0 transition-all duration-500",
-                        isCompleted ? "scale-105 rotate-6" : "hover:scale-105" // "Small move" animation
+                        "w-10 h-10 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center border-2 p-1.5 lg:p-3 shrink-0 transition-all duration-700 ease-out hover:scale-110 hover:rotate-12",
+                        isCompletedToday && "animate-spin-smooth scale-105"
                     )}
                     style={{
-                        backgroundColor: isCompleted ? `${habit.color}33` : `${habit.color}1a`, // Hex alpha: ~20% / ~10%
-                        borderColor: `${habit.color}66`, // ~40%
-                        boxShadow: isCompleted ? `0 0 15px ${habit.color}4d` : 'none' // ~30%
+                        backgroundColor: isCompletedToday ? `${habit.color}33` : `${habit.color}1a`,
+                        borderColor: `${habit.color}66`,
+                        boxShadow: isCompletedToday ? `0 0 15px ${habit.color}4d` : 'none'
                     }}
                 >
                     <div
@@ -120,56 +149,59 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
                 <div className="min-w-0 flex-1">
                     <h3
                         className={clsx(
-                            "font-semibold text-sm lg:text-lg truncate leading-tight transition-all duration-300",
-                            isCompleted ? "line-through text-gray-500 decoration-auto" : "text-white"
+                            "font-semibold text-sm lg:text-lg truncate leading-tight transition-all duration-500 ease-out",
+                            isCompletedToday ? "line-through text-gray-500 decoration-auto" : "text-white"
                         )}
-                        style={{ textDecorationColor: isCompleted ? habit.color : 'transparent' }}
+                        style={{ textDecorationColor: isCompletedToday ? habit.color : 'transparent' }}
                     >
                         {habit.name}
                     </h3>
-                    <p className="text-gray-400 text-xs lg:text-sm font-medium">{habit.category} • {habit.frequency.type}</p>
+                    <p className="text-gray-400 text-xs lg:text-sm font-medium transition-opacity duration-300">Daily</p>
                 </div>
             </div>
 
             {/* RIGHT: STREAK SECTION - CLICKABLE & INTERACTIVE */}
-            <div className="flex items-center gap-1 lg:gap-2 shrink-0 ml-1">
-                <span className="text-xs lg:text-sm font-semibold text-gray-400 tracking-wider uppercase whitespace-nowrap">STRK</span>
+            <div className="flex items-center gap-1 lg:gap-2 shrink-0 ml-1 transition-all duration-300 group-hover:gap-1.5 z-10">
+                <span className="text-xs lg:text-sm font-semibold text-gray-400 tracking-wider uppercase whitespace-nowrap transition-opacity duration-300">STRK</span>
 
-                {/* FIRE ICON - STATE BASED */}
-                <FaFire className={clsx(
-                    "w-3.5 h-3.5 lg:w-5 lg:h-5 shrink-0 transition-all",
-                    habit.streak > 0
-                        ? "text-orange-400 animate-fireFlicker drop-shadow-sm"
-                        : "text-gray-400"
-                )} />
+                {/* FIRE ICON - ALWAYS ORANGE */}
+                <FaFire
+                    className={clsx(
+                        "w-3.5 h-3.5 lg:w-5 lg:h-5 shrink-0 transition-transform duration-300 group-hover:scale-110",
+                        habit.streak > 0
+                            ? "text-orange-400 animate-fireFlicker drop-shadow-sm"
+                            : "text-gray-400"
+                    )}
+                />
 
-                {/* 7 CLICKABLE CIRCLES */}
+                {/* 7 CLICKABLE CIRCLES - MON-SUN LOGIC */}
                 <div className="flex -space-x-0.5 lg:-space-x-1">
-                    {Array(7).fill(0).map((_, dayIndex) => {
-                        const isDone = dayIndex < habit.streak;
-                        const isCheck = dayIndex === habit.streak && isMarked; // Show check on next potential spot if marked
+                    {Array(7).fill(0).map((_, i) => {
+                        // Calculate specific date for this dot (Monday-based index)
+                        const dotDate = addDays(startOfCurrentWeek, i);
+                        const dotDateStr = format(dotDate, 'yyyy-MM-dd');
+
+                        const isCompleted = habit.completedDates.includes(dotDateStr);
 
                         return (
                             <button
-                                key={dayIndex}
-                                onClick={(e) => handleCircleClick(e, dayIndex)}
+                                key={i}
+                                onClick={(e) => handleCircleClick(e, dotDateStr)}
                                 className={clsx(
-                                    "w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full border-2 shadow-sm transition-all hover:scale-125 active:scale-110 flex items-center justify-center",
-                                    isDone
-                                        ? "bg-emerald-400 border-emerald-400/50 shadow-emerald-500/25"
-                                        : isCheck
-                                            ? "bg-white/20 border-white/40 text-[8px] lg:text-[10px] text-gray-300" // Small check style
-                                            : "bg-gray-600/40 border-gray-500/30"
+                                    "w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full border-2 shadow-sm transition-all duration-300 hover:scale-125 hover:shadow-lg active:scale-110 flex items-center justify-center",
+                                    isCompleted
+                                        ? "bg-emerald-400 border-emerald-400/50 shadow-emerald-500/25 scale-110"
+                                        : "bg-gray-600/40 border-gray-500/30 hover:bg-white/20"
                                 )}
-                                disabled={dayIndex > habit.streak} // Disable future dots beyond next step
+                                title={format(dotDate, 'EEE, MMM d')}
                             >
-                                {isCheck && !isDone && '✓'}
+                                {/* No checkmark needed, color indicates state */}
                             </button>
                         );
                     })}
                 </div>
 
-                <span className="text-sm lg:text-base font-bold text-white ml-1 lg:ml-2 min-w-[20px] text-center">
+                <span className="text-sm lg:text-base font-bold text-white ml-1 lg:ml-2 min-w-[20px] text-center transition-all duration-300 group-hover:text-orange-300">
                     {habit.streak}
                 </span>
 
@@ -234,19 +266,28 @@ export const HabitList = ({ filterCategory = 'All', onHabitClick }: { filterCate
     }
 
     return (
-        <>
-            <div className="space-y-4 animate-in slide-in-from-bottom-4 fade-in duration-500">
-                {todaysHabits.map((habit) => (
+        <div className="space-y-3">
+            {/* PAGE LOAD: Fire first, then staggered rows */}
+            {/* HABIT ROWS - STAGGERED ANIMATION */}
+
+            {/* HABIT ROWS - STAGGERED ANIMATION */}
+            {todaysHabits.map((habit, index) => (
+                <div
+                    key={habit.id}
+                    className={clsx(
+                        "opacity-0 translate-y-8 animate-slideUpFadeIn",
+                    )}
+                    style={{ animationDelay: `${300 + index * 100}ms`, animationFillMode: 'forwards' }}
+                >
                     <HabitItem
-                        key={habit.id}
                         habit={habit}
                         onToggle={toggleHabit}
                         onDelete={removeHabit}
                         onEdit={handleEdit}
                         onHabitClick={onHabitClick}
                     />
-                ))}
-            </div>
+                </div>
+            ))}
 
             {/* Reusing the Create Modal for Editing */}
             {editingHabit && (
@@ -256,6 +297,6 @@ export const HabitList = ({ filterCategory = 'All', onHabitClick }: { filterCate
                     habitToEdit={editingHabit}
                 />
             )}
-        </>
+        </div>
     );
 };

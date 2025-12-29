@@ -17,7 +17,7 @@ interface BottomNavProps {
 export const BottomNav = ({ onAddClick }: BottomNavProps) => {
     return (
         <div className="lg:hidden fixed bottom-4 left-4 right-4 z-50">
-            <nav className="glass bg-surface/90 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.5)] h-16 relative flex items-center px-2">
+            <nav className="glass bg-black/40 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.6)] h-16 relative flex items-center px-2 transition-all duration-300">
 
                 {/* Left Group */}
                 <div className="flex-1 flex justify-around items-center mr-8">
