@@ -23,6 +23,9 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
     const menuRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
 
+    // Local state for the intermediate "marked" (check) step
+    const [isMarked, setIsMarked] = useState(false);
+
     // Close menu when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -52,7 +55,6 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
     const handleToggle = (e: React.MouseEvent) => {
         e.stopPropagation();
         onToggle(habit);
-        // Toast handled by logic? Or here? Let's add here for feedback
         if (!isCompleted) {
             toast.success(<span>Habit completed! Keep it up! <FaFire className="inline text-orange-500" /></span>);
         } else {
@@ -68,104 +70,126 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
         }
     };
 
+    const handleCircleClick = (e: React.MouseEvent, index: number) => {
+        e.stopPropagation(); // Ensure we don't trigger the card click
+
+        // Logic: specific dot interaction
+        // If clicking the immediate next dot (current streak index)
+        if (index === habit.streak) {
+            if (!isMarked) {
+                setIsMarked(true); // Step 1: Show check
+            } else {
+                handleToggle(e); // Step 2: Complete (Green)
+                setIsMarked(false); // Reset local mark
+            }
+        }
+        // If clicking the current "Today" dot (last completed) to undo
+        else if (index === habit.streak - 1 && isCompleted) {
+            handleToggle(e); // Undo
+        }
+    };
+
     return (
         <div
             className={clsx(
-                "glass-card p-5 border border-border flex items-center justify-between group cursor-pointer transition-all duration-300 relative select-none",
-                isCompleted ? "opacity-70 grayscale-[0.3]" : "hover:translate-x-1 hover:shadow-lg hover:shadow-primary/10 hover:border-primary/50",
-                showMenu ? "z-50" : "z-0" // Elevate card when menu is open to prevent clipping
+                "flex items-center justify-between py-3 px-4 lg:py-4 lg:px-6 rounded-2xl bg-white/5 hover:bg-white/8 border border-white/10 gap-3 lg:gap-4 mt-3 select-none transition-all duration-200",
+                isCompleted && "opacity-80"
             )}
             onClick={handleCardClick}
         >
-            <div className="flex items-center gap-5">
+            {/* LEFT: Icon + Text (Responsive sizes) */}
+            <div className="flex items-center gap-2.5 lg:gap-4 flex-1 min-w-0">
                 <div
                     className={clsx(
-                        "w-12 h-12 rounded-2xl flex items-center justify-center text-2xl transition-all duration-500",
-                        isCompleted ? "bg-success/20 text-success rotate-12 scale-110" : "group-hover:scale-110"
+                        "w-10 h-10 lg:w-14 lg:h-14 rounded-2xl flex items-center justify-center border-2 p-1.5 lg:p-3 shrink-0 transition-all duration-500",
+                        isCompleted ? "scale-105 rotate-6" : "hover:scale-105" // "Small move" animation
                     )}
-                    style={!isCompleted ? {
-                        backgroundColor: `${habit.color}20`, // ~12% opacity
-                        color: habit.color,
-                        boxShadow: `0 0 15px ${habit.color}15`
-                    } : undefined}
+                    style={{
+                        backgroundColor: isCompleted ? `${habit.color}33` : `${habit.color}1a`, // Hex alpha: ~20% / ~10%
+                        borderColor: `${habit.color}66`, // ~40%
+                        boxShadow: isCompleted ? `0 0 15px ${habit.color}4d` : 'none' // ~30%
+                    }}
                 >
-                    {getHabitIcon(habit.icon) || habit.icon || <FaClipboardList />}
+                    <div
+                        className={clsx("text-lg lg:text-3xl transition-all duration-500")}
+                        style={{ color: habit.color }}
+                    >
+                        {getHabitIcon(habit.icon) || habit.icon || <FaClipboardList />}
+                    </div>
                 </div>
-                <div>
-                    <h3 className={clsx(
-                        "font-semibold text-lg transition-all",
-                        isCompleted && "line-through text-muted"
-                    )}>
+                <div className="min-w-0 flex-1">
+                    <h3
+                        className={clsx(
+                            "font-semibold text-sm lg:text-lg truncate leading-tight transition-all duration-300",
+                            isCompleted ? "line-through text-gray-500 decoration-auto" : "text-white"
+                        )}
+                        style={{ textDecorationColor: isCompleted ? habit.color : 'transparent' }}
+                    >
                         {habit.name}
                     </h3>
-                    <p className="text-sm text-muted">{habit.category} • {habit.frequency.type}</p>
+                    <p className="text-gray-400 text-xs lg:text-sm font-medium">{habit.category} • {habit.frequency.type}</p>
                 </div>
             </div>
 
-            <div className="flex items-center gap-6">
-                <div className="text-right hidden sm:block">
-                    <p className="text-xs text-muted font-bold uppercase tracking-wider">Streak</p>
-                    <p className={clsx("font-bold flex items-center justify-end gap-1", habit.streak > 0 ? "text-danger" : "text-muted")}>
-                        <FaFire /> {habit.streak}
-                    </p>
+            {/* RIGHT: STREAK SECTION - CLICKABLE & INTERACTIVE */}
+            <div className="flex items-center gap-1 lg:gap-2 shrink-0 ml-1">
+                <span className="text-xs lg:text-sm font-semibold text-gray-400 tracking-wider uppercase whitespace-nowrap">STRK</span>
+
+                {/* FIRE ICON - STATE BASED */}
+                <FaFire className={clsx(
+                    "w-3.5 h-3.5 lg:w-5 lg:h-5 shrink-0 transition-all",
+                    habit.streak > 0
+                        ? "text-orange-400 animate-fireFlicker drop-shadow-sm"
+                        : "text-gray-400"
+                )} />
+
+                {/* 7 CLICKABLE CIRCLES */}
+                <div className="flex -space-x-0.5 lg:-space-x-1">
+                    {Array(7).fill(0).map((_, dayIndex) => {
+                        const isDone = dayIndex < habit.streak;
+                        const isCheck = dayIndex === habit.streak && isMarked; // Show check on next potential spot if marked
+
+                        return (
+                            <button
+                                key={dayIndex}
+                                onClick={(e) => handleCircleClick(e, dayIndex)}
+                                className={clsx(
+                                    "w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full border-2 shadow-sm transition-all hover:scale-125 active:scale-110 flex items-center justify-center",
+                                    isDone
+                                        ? "bg-emerald-400 border-emerald-400/50 shadow-emerald-500/25"
+                                        : isCheck
+                                            ? "bg-white/20 border-white/40 text-[8px] lg:text-[10px] text-gray-300" // Small check style
+                                            : "bg-gray-600/40 border-gray-500/30"
+                                )}
+                                disabled={dayIndex > habit.streak} // Disable future dots beyond next step
+                            >
+                                {isCheck && !isDone && '✓'}
+                            </button>
+                        );
+                    })}
                 </div>
 
-                {/* Actions Container */}
-                <div className="flex items-center gap-3">
-                    {/* Toggle Button (Desktop) */}
+                <span className="text-sm lg:text-base font-bold text-white ml-1 lg:ml-2 min-w-[20px] text-center">
+                    {habit.streak}
+                </span>
+
+                {/* Menu Trigger */}
+                <div className="relative ml-0.5 lg:ml-1" ref={menuRef}>
                     <button
-                        className={clsx(
-                            "hidden sm:flex w-10 h-10 rounded-full border-2 items-center justify-center transition-all duration-300",
-                            isCompleted
-                                ? "border-success bg-success text-surface scale-110"
-                                : "border-white/10 text-transparent group-hover:border-success group-hover:text-success/50"
-                        )}
-                        onClick={handleToggle}
-                        title={isCompleted ? "Unmark" : "Mark Complete"}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowMenu(!showMenu);
+                        }}
+                        className="w-7 h-7 lg:w-8 lg:h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-white/10 hover:text-white transition-colors"
                     >
-                        <FaCheckCircle className={clsx("transition-all", isCompleted ? "opacity-100" : "opacity-0 group-hover:opacity-100")} />
+                        <FaEllipsisV size={12} />
                     </button>
-
-                    {/* Menu Trigger */}
-                    <div className="relative" ref={menuRef}>
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setShowMenu(!showMenu);
-                            }}
-                            className="w-8 h-8 rounded-full flex items-center justify-center text-gray-400 hover:bg-white/10 hover:text-white transition-colors"
-                        >
-                            <FaEllipsisV />
-                        </button>
-
-                        {/* Dropdown Menu - Fixed positioning and visibility */}
-                        {showMenu && (
-                            <div className="absolute right-0 top-full mt-2 w-40 bg-[#1e1e2e] border border-white/20 rounded-lg shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
-                                {/* Mobile Toggle Option */}
-                                <button
-                                    onClick={handleToggle}
-                                    className="sm:hidden w-full px-4 py-3 text-left text-sm text-gray-200 hover:bg-white/10 border-b border-white/5 flex items-center gap-3 transition-colors"
-                                >
-                                    <FaCheckCircle className={isCompleted ? "text-success" : "text-gray-400"} />
-                                    {isCompleted ? 'Mark Undone' : 'Mark Done'}
-                                </button>
-
-                                <button
-                                    onClick={handleEdit}
-                                    className="w-full px-4 py-3 text-left text-sm text-gray-200 hover:bg-white/10 flex items-center gap-3 transition-colors border-b border-white/5"
-                                >
-                                    <FaEdit size={14} className="text-blue-400" /> Edit
-                                </button>
-
-                                <button
-                                    onClick={handleDelete}
-                                    className="w-full px-4 py-3 text-left text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 flex items-center gap-3 transition-colors"
-                                >
-                                    <FaTrash size={14} /> Delete
-                                </button>
-                            </div>
-                        )}
-                    </div>
+                    {showMenu && (
+                        <div className="absolute right-0 top-full mt-2 w-40 bg-[#1e1e2e] border border-white/20 rounded-lg shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+                            <button onClick={handleEdit} className="w-full px-4 py-3 text-left text-sm text-gray-200 hover:bg-white/10 flex items-center gap-3 border-b border-white/5"><FaEdit size={14} className="text-blue-400" /> Edit</button>
+                            <button onClick={handleDelete} className="w-full px-4 py-3 text-left text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 flex items-center gap-3"><FaTrash size={14} /> Delete</button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
