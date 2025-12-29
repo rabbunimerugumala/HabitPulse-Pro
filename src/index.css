@@ -6,7 +6,8 @@
 
 @layer components {
   .glass {
-    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_18px_45px_rgba(0,0,0,0.65)];
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
   }
 
   .glass-card {

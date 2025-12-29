@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { FaHome, FaList, FaCalendarAlt, FaChartBar, FaCog, FaSignOutAlt } from 'react-icons/fa';
+import { FaHome, FaList, FaCalendarAlt, FaChartBar, FaCog, FaSignOutAlt, FaFire } from 'react-icons/fa';
 import { clsx } from 'clsx';
 
 const NAV_ITEMS = [
@@ -17,10 +17,10 @@ export const Sidebar = () => {
     return (
         <aside className="hidden lg:flex flex-col w-72 h-screen sticky top-0 bg-surface/30 border-r border-white/5 backdrop-blur-xl p-6">
             <div className="flex items-center gap-3 mb-10 px-2">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-neon-blue to-neon-purple flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-neon-blue/20">
-
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 backdrop-blur-sm border border-white/10 hover:shadow-lg hover:shadow-orange-500/20 transition-all duration-300 group cursor-default">
+                    <FaFire className="w-6 h-6 animate-fireFlicker text-orange-400 drop-shadow-sm hover:drop-shadow-lg transition-all" />
+                    <span className="font-semibold text-white text-base tracking-tight group-hover:text-primary-100 transition-colors">HabitPulse Pro</span>
                 </div>
-                <h1 className="text-xl font-bold font-heading tracking-tight">HabitPulse Pro</h1>
             </div>
 
             <nav className="flex-1 space-y-2">

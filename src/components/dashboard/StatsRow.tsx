@@ -29,7 +29,11 @@ export const StatsRow = () => {
             <StatCard
                 icon={FaFire}
                 label="Current Streak"
-                value={`${currentStreak} Days`}
+                value={
+                    currentStreak === 1 ? '1 Day' :
+                        (currentStreak >= 7 && currentStreak % 7 === 0) ? `${currentStreak / 7} ${currentStreak === 7 ? 'Week' : 'Weeks'}` :
+                            `${currentStreak} Days`
+                }
                 colorClass="border-warning"
                 delay={0}
             />

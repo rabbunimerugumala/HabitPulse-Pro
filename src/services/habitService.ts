@@ -1,4 +1,5 @@
 import { supabase } from "../config/supabaseClient";
+import { format, subDays } from 'date-fns';
 
 export interface Habit {
     id?: string;
@@ -180,4 +181,57 @@ export const createInsight = async (userId: string, summary: string, recommendat
 
     if (error) throw error;
     return data;
+};
+
+export const calculateCurrentStreak = async (userId: string) => {
+    const today = new Date();
+    const thirtyDaysAgo = subDays(today, 30);
+
+    // Query completions (last 30 days limit as requested)
+    // Note: This caps calculated streak at 30 for optimization. 
+    // To allow longer streaks, we would need to remove the date filter or increase it.
+    const { data } = await supabase
+        .from('completions')
+        .select('date')
+        .eq('user_id', userId)
+        .eq('completed', true)
+        .gte('date', format(thirtyDaysAgo, 'yyyy-MM-dd'))
+        .order('date', { ascending: false });
+
+    if (!data || data.length === 0) return 0;
+
+    // Get unique dates
+    const uniqueDates = Array.from(new Set(data.map(d => d.date)));
+    const sortedDates = uniqueDates.sort((a, b) => b.localeCompare(a)); // Descending
+
+    let streak = 0;
+    const todayStr = format(today, 'yyyy-MM-dd');
+    const yesterdayStr = format(subDays(today, 1), 'yyyy-MM-dd');
+
+    // Check where to start counting
+    let checkDateStr = todayStr;
+
+    // If today is not completed, we check if yesterday was completed to keep the streak alive
+    if (!sortedDates.includes(todayStr)) {
+        if (sortedDates.includes(yesterdayStr)) {
+            checkDateStr = yesterdayStr;
+        } else {
+            return 0; // Streak broken
+        }
+    }
+
+    // Iterate backwards
+    let currentDate = new Date(checkDateStr);
+
+    while (true) {
+        const dStr = format(currentDate, 'yyyy-MM-dd');
+        if (sortedDates.includes(dStr)) {
+            streak++;
+            currentDate = subDays(currentDate, 1);
+        } else {
+            break;
+        }
+    }
+
+    return streak;
 };
