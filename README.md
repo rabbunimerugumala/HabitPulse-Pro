@@ -18,7 +18,14 @@ We built this project to combine the performance of **React** + **Vite** with th
 **Key Highlights:**
 *   **Live Interactions:** Fire flicker animations and personalized hover glows.
 *   **Visual Feedback:** 2-second glow when clicking a habit and 7-dot progress tracking (gray=incomplete, green=completed).
+*   **Visual Feedback:** 2-second glow when clicking a habit and 7-dot progress tracking (gray=incomplete, green=completed).
 *   **Design:** Mobile-first, responsive interface with a curated dark palette and glassmorphism effects.
+
+<div align="center">
+  <video src="public/S_record.mp4" width="100%" />
+</div>
+
+> **Note**: If the video doesn't play, you can [watch it here](public/S_record.mp4).
 
 ## Table of Contents
 
@@ -107,6 +114,20 @@ Follow these steps to get the project running on your local machine.
 ## Screenshots
 
 ![Dashboard Preview](public/dashboard-preview.png)
+
+### 1. Signup & Onboarding
+![Signup Page](public/Signup_page.png)
+
+### 2. Homepage (Dashboard)
+![Home Page](public/Home_page.png)
+
+### 3. Creating a Habit
+![Add Habit 1](public/add_habit1.png)
+![Add Habit 2](public/add_habit2.png)
+
+### 4. Progress & Views
+![Home Page 2](public/home_page2.png)
+![Home Page 3](public/home_page3.png)
 
 ## Credits
 
