@@ -113,7 +113,7 @@ Follow these steps to get the project running on your local machine.
 
 ## Screenshots
 
-![Dashboard Preview](public/dashboard-preview.png)
+
 
 ### 1. Signup & Onboarding
 ![Signup Page](public/Signup_page.png)
