@@ -22,10 +22,12 @@ We built this project to combine the performance of **React** + **Vite** with th
 *   **Design:** Mobile-first, responsive interface with a curated dark palette and glassmorphism effects.
 
 <div align="center">
-  <video src="public/S_record.mp4" width="100%" />
+  <a href="public/S_record.mp4">
+    <img src="public/Home_page.png" alt="Watch Demo Video" width="100%" />
+  </a>
+  <br/>
+  <em>Click the image above to watch the demo video (High Quality)</em>
 </div>
-
-> **Note**: If the video doesn't play, you can [watch it here](public/S_record.mp4).
 
 ## Table of Contents
 
