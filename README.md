@@ -3,6 +3,7 @@
 > A modern, premium habit tracker for building consistent daily routines with streaks and analytics.
 
 ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB)
+![Lucide](https://img.shields.io/badge/lucide-000000.svg?style=for-the-badge&logo=lucide&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 ![TailwindCSS](https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)
@@ -12,12 +13,12 @@
 
 **HabitPulse Pro** is a comprehensive web application designed to help users track their daily habits, maintain streaks, and visualize their progress over time. In a world of scattered to-do lists and disconnected goals, HabitPulse Pro provides a unified, beautiful dashboard for all your daily and weekly routines.
 
-We built this project to combine the performance of **React** + **Vite** with the robust backend capabilities of **Supabase**. It differs from other trackers by focusing heavily on **User Experience (UX)**—featuring a polished "Moon" inspired dark theme, glassmorphism effects, and smooth animations that make the act of tracking habits feel rewarding and premium.
+We built this project to combine the performance of **React** + **Vite** with the robust backend capabilities of **Supabase**. It differs from other trackers by focusing heavily on **User Experience (UX)**—featuring a polished "Moon" inspired dark theme, glassmorphism cards, scrollable category tabs, and smooth animations found in premium apps.
 
 **Key Highlights:**
-*   **Performance:** Lightning-fast loads with Vite.
-*   **Security:** Robust authentication via Supabase.
-*   **Design:** Mobile-first, responsive interface with a curated dark palette.
+*   **Live Interactions:** Fire flicker animations and personalized hover glows.
+*   **Visual Feedback:** 2-second glow when clicking a habit and 7-dot progress tracking (gray=incomplete, green=completed).
+*   **Design:** Mobile-first, responsive interface with a curated dark palette and glassmorphism effects.
 
 ## Table of Contents
 
@@ -25,6 +26,7 @@ We built this project to combine the performance of **React** + **Vite** with th
 *   [Tech Stack](#tech-stack)
 *   [Installation & Setup](#installation--setup)
 *   [Usage](#usage)
+*   [Screenshots](#screenshots)
 *   [Contributing](#contributing)
 *   [Credits](#credits)
 *   [License](#license)
@@ -32,31 +34,25 @@ We built this project to combine the performance of **React** + **Vite** with th
 ## Features
 
 ### Core Capabilities
-*   **Authentication**: Secure Email & Password login/signup with Supabase Auth.
-*   **Onboarding Flow**: Personalized setup to capture user name and focus areas.
-*   **Today's Focus**: A smart dashboard showing only what needs to be active today.
-*   **Flexible Scheduling**:
-    *   **Daily Habits**: Repeat every day.
-    *   **Weekly Habits**: Specific days (e.g., "Gym on Mon, Wed, Fri").
-*   **Progress Tracking**:
-    *   **Streaks**: Visual counters for consecutive completions.
-    *   **Stats**: Weekly completion rates and total active habits.
+✅ **Today's Focus** + scrollable categories (All/Learning/Relationships/Mindfulness/Productivity/Health)
+✅ **Habit cards** w/ user-selected icons + colors
+✅ **7-dot Mon-Sun progress** (gray○ → green● on click)
+✅ **STRK fire** + live count
 
-### Visuals & Analytics
-*   **Calendar View**: detailed monthly history of completions.
-*   **Analytics Dashboard**: 30-day activity charts and category distribution.
-*   **Rich Customization**: vector icons (Health, Productivity, etc.) and color coding.
-*   **Modern UI**: Glass-morphism cards, gradients, and a "Moon" dark theme.
+### Premium Interactions
+✅ Fire flicker animation (continuous)
+✅ Row hover = habit color glow
+✅ 2sec personalized glow on dot click (mark/unmark)
+✅ Staggered page load animations
+✅ Perfect mobile→desktop responsive
 
 ## Tech Stack
 
-*   **Frontend**: React (v18+), TypeScript
-*   **Build Tool**: Vite
-*   **Styling**: Tailwind CSS, clsx, tailwind-merge
-*   **Animations**: Framer Motion
-*   **Icons**: React Icons (FontAwesome, etc.)
-*   **Charts**: Recharts
-*   **Backend & DB**: Supabase (PostgreSQL)
+*   **Frontend**: React 18 + Vite ⚡
+*   **Styling**: Tailwind CSS 3.4 (custom animations: fireFlicker, dynamic shadows)
+*   **Icons**: Lucide React Icons (premium stroke icons)
+*   **Utilities**: clsx + cn() (conditional classes)
+*   **Backend**: Supabase ready (future auth/backend)
 
 ## Installation & Setup
 
@@ -103,18 +99,14 @@ Follow these steps to get the project running on your local machine.
 
 ## Usage
 
-1.  **Sign Up**: Create an account to start storing your data securely.
-2.  **Onboarding**: You'll be asked for your name and focus areas (e.g., Health, Learning).
-3.  **Create a Habit**:
-    *   Click the **"+"** button on the dashboard.
-    *   Choose a name, category, icon, and color.
-    *   Select Frequency: "Every Day" or "Specific Days".
-4.  **Track Progress**:
-    *   Tap a habit card to mark it as **Done** (Green).
-    *   Watch your **Streak** counter increase!
-5.  **Analyze**:
-    *   Visit the **Calendar** to see your monthly heatmap.
-    *   Check **Stats** for completion trends.
+1.  **View "Today's Focus" dashboard**.
+2.  **Hover rows** to see habit color glows.
+3.  **Click dots** (gray○ → green●) and enjoy the 2sec glow.
+4.  **Scroll category tabs** (All/Learning/etc.) to filter your view.
+
+## Screenshots
+
+![Dashboard Preview](public/dashboard-preview.png)
 
 ## Credits
 
