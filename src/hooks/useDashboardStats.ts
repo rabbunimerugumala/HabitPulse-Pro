@@ -33,7 +33,7 @@ export const useDashboardStats = () => {
         const todayStr = format(new Date(), 'yyyy-MM-dd');
 
         // 1. Completed Today
-        const completedToday = habits.filter(h => h.completedDates.includes(todayStr)).length;
+        const completedToday = habits.filter(h => h.completions && h.completions[todayStr] === true).length;
 
         // Total active habits for today
         const dayIndex = new Date().getDay(); // 0-6
@@ -65,7 +65,7 @@ export const useDashboardStats = () => {
 
                 if (isDue) {
                     totalPotential++;
-                    if (h.completedDates.includes(dStr)) totalCompleted++;
+                    if (h.completions && h.completions[dStr] === true) totalCompleted++;
                 }
             });
         });

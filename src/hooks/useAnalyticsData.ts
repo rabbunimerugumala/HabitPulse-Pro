@@ -24,7 +24,8 @@ export const useAnalyticsData = () => {
         }).map(date => {
             const dateStr = format(date, 'yyyy-MM-dd');
             const count = habits.reduce((acc, h) => {
-                return acc + (h.completedDates.includes(dateStr) ? 1 : 0);
+                // Check if map entry exists and is true
+                return acc + (h.completions && h.completions[dateStr] === true ? 1 : 0);
             }, 0);
             return {
                 date: format(date, 'MMM dd'),
@@ -32,19 +33,21 @@ export const useAnalyticsData = () => {
             };
         });
 
-        // 2. Category Data
-        const categoryMap = habits.reduce((acc, habit) => {
-            const completions = habit.completedDates.length;
-            if (completions > 0) {
-                acc[habit.category] = (acc[habit.category] || 0) + completions;
-            }
-            return acc;
-        }, {} as Record<string, number>);
-
-        const categoryData = Object.entries(categoryMap).map(([name, value]) => ({ name, value }));
+        // 2. Focus Distribution (Per Habit as requested)
+        // Previous was Category Map, now mapping individual habits with their colors
+        const categoryData = habits.map(habit => {
+            const completionCount = habit.completions ? Object.keys(habit.completions).length : 0;
+            return {
+                name: habit.name,
+                value: completionCount,
+                color: habit.color
+            };
+        }).filter(item => item.value > 0); // Only show habits with data? Or all? 
+        // Showing all might be cluttered if many habits, but logical for "Distribution". 
+        // Let's filter > 0 to render meaningful pie slices.
 
         // 3. Quick Stats
-        const totalCompletions = habits.reduce((acc, h) => acc + h.completedDates.length, 0);
+        const totalCompletions = habits.reduce((acc, h) => acc + (h.completions ? Object.keys(h.completions).length : 0), 0);
 
         const bestHabit = habits.reduce((prev, current) =>
             (prev.streak > current.streak) ? prev : current
@@ -76,7 +79,7 @@ export const useAnalyticsData = () => {
 
         return {
             trendData,
-            categoryData,
+            categoryData, // Now contains per-habit data
             totalCompletions, // All time
             bestHabit: { name: bestHabit.name, streak: bestHabit.streak },
             completionRate: rateLast30, // Last 30 days rate

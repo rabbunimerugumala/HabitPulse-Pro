@@ -18,11 +18,11 @@ export interface Habit {
         time: string;
     };
     streak: number;
-    completedDates: string[]; // virtual field
+    completions: Record<string, boolean>; // Changed from completedDates: string[]
     created_at: any;
 }
 
-export const createHabit = async (habitData: Omit<Habit, 'id' | 'created_at' | 'streak' | 'completedDates'>) => {
+export const createHabit = async (habitData: Omit<Habit, 'id' | 'created_at' | 'streak' | 'completions'>) => {
     const { user_id, name, category, color, icon, frequency, reminder } = habitData;
 
     const { data, error } = await supabase.from('habits').insert({
@@ -67,26 +67,35 @@ export const fetchHabits = async (userId: string) => {
     if (completionsError) throw completionsError;
 
     // 3. Map completions to habits
-    return habits.map((h: any) => ({
-        ...h,
-        frequency: {
-            type: h.frequency_type,
-            days: h.frequency_days || []
-        },
-        reminder: {
-            enabled: h.reminder_enabled,
-            time: h.reminder_time
-        },
-        streak: h.current_streak, // map DB column to frontend prop
-        completedDates: completions
-            ? completions.filter((c: any) => c.habit_id === h.id).map((c: any) => c.date)
-            : []
-    })) as Habit[];
+    return habits.map((h: any) => {
+        const habitCompletions: Record<string, boolean> = {};
+        if (completions) {
+            completions
+                .filter((c: any) => c.habit_id === h.id)
+                .forEach((c: any) => {
+                    habitCompletions[c.date] = true;
+                });
+        }
+
+        return {
+            ...h,
+            frequency: {
+                type: h.frequency_type,
+                days: h.frequency_days || []
+            },
+            reminder: {
+                enabled: h.reminder_enabled,
+                time: h.reminder_time
+            },
+            streak: h.current_streak, // map DB column to frontend prop
+            completions: habitCompletions
+        };
+    }) as Habit[];
 };
 
 export const toggleHabitCompletion = async (habit: Habit, dateStr: string) => {
     if (!habit.id) return;
-    const isCompleted = habit.completedDates.includes(dateStr);
+    const isCompleted = habit.completions[dateStr] === true;
 
     if (isCompleted) {
         // DELETE completion

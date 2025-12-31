@@ -28,7 +28,7 @@ export const Calendar = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {last7Days.map(date => {
                         const dateStr = format(date, 'yyyy-MM-dd');
-                        const completedHabits = habits.filter(h => h.completedDates.includes(dateStr));
+                        const completedHabits = habits.filter(h => h.completions && h.completions[dateStr] === true);
 
                         return (
                             <div key={dateStr} className="glass p-4 rounded-xl border-l-2 border-white/10 hover:border-neon-purple transition-all">

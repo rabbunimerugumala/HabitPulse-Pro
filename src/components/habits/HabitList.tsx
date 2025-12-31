@@ -21,7 +21,7 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
     // Current date logic
     const today = new Date();
     const formattedToday = format(today, 'yyyy-MM-dd');
-    const isCompletedToday = habit.completedDates.includes(formattedToday);
+    const isCompletedToday = habit.completions && habit.completions[formattedToday] === true;
 
     // Week logic: Start from Monday
     const startOfCurrentWeek = startOfWeek(today, { weekStartsOn: 1 });
@@ -70,6 +70,9 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
     const handleCircleClick = (e: React.MouseEvent, dateStr: string) => {
         e.stopPropagation();
 
+        // STRICT LOGIC: Only allow clicking Today
+        if (dateStr !== formattedToday) return;
+
         // Trigger Click Glow
         if (glowTimeout) clearTimeout(glowTimeout);
         setIsGlowing(true);
@@ -81,7 +84,7 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
         // Toggle specific date
         onToggle(habit, dateStr);
 
-        const wasCompleted = habit.completedDates.includes(dateStr);
+        const wasCompleted = habit.completions[dateStr] === true;
         if (!wasCompleted) {
             toast.success(<span>Habit completed! Keep it up! <FaFire className="inline text-orange-500" /></span>);
         } else {
@@ -113,18 +116,6 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
                 "border-transparent group-hover:border-[var(--habit-glow)]",
                 "group-hover:shadow-[0_0_30px_var(--habit-glow)]"
             )} />
-
-            {/* CONTENT Z-INDEX wrapper to sit above the hover-border div if needed,
-                but actually the border div is pointer-events-none so it's fine overlaying or underlaying.
-                Let's just apply the hover effects to the PARENT directly for simplicity if possible.
-                Tailwind arbitrary values with variables work: hover:border-[var(--habit-glow)]
-            */}
-            {/* <style>{`
-                .group:hover {
-                    border-color: var(--habit-glow) !important;
-                    box-shadow: 0 0 30px var(--habit-glow) !important;
-                }
-            `}</style> */}
 
             {/* LEFT: Icon + Text (Responsive sizes) */}
             <div className="flex items-center gap-2.5 lg:gap-4 flex-1 min-w-0 z-10">
@@ -180,18 +171,28 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
                         // Calculate specific date for this dot (Monday-based index)
                         const dotDate = addDays(startOfCurrentWeek, i);
                         const dotDateStr = format(dotDate, 'yyyy-MM-dd');
+                        const isToday = dotDateStr === formattedToday;
 
-                        const isCompleted = habit.completedDates.includes(dotDateStr);
+                        // Check completion in map
+                        const isCompleted = habit.completions && habit.completions[dotDateStr] === true;
 
                         return (
                             <button
                                 key={i}
-                                onClick={(e) => handleCircleClick(e, dotDateStr)}
+                                onClick={isToday ? (e) => handleCircleClick(e, dotDateStr) : undefined}
+                                disabled={!isToday} // Disable non-today, or just allow no onClick? Disabled is safer for UI indication if styles match
                                 className={clsx(
-                                    "w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full border-2 shadow-sm transition-all duration-300 hover:scale-125 hover:shadow-lg active:scale-110 flex items-center justify-center",
+                                    "w-2.5 h-2.5 lg:w-3 lg:h-3 rounded-full border-2 shadow-sm transition-all duration-300 flex items-center justify-center",
+                                    // Scale effects ONLY for clickable (today)
+                                    isToday ? "hover:scale-125 hover:shadow-lg active:scale-110 cursor-pointer" : "cursor-default",
+
                                     isCompleted
-                                        ? "bg-emerald-400 border-emerald-400/50 shadow-emerald-500/25 scale-110"
-                                        : "bg-gray-600/40 border-gray-500/30 hover:bg-white/20"
+                                        ? "bg-emerald-400 border-emerald-400/50 shadow-emerald-500/25"
+                                        : "bg-gray-600/40 border-gray-500/30",
+
+                                    // Special styling for today if not completed? 
+                                    // Make today pulse if not done? (Optional, not requested but nice)
+                                    !isCompleted && isToday && "border-orange-500/40 animate-pulse"
                                 )}
                                 title={format(dotDate, 'EEE, MMM d')}
                             >

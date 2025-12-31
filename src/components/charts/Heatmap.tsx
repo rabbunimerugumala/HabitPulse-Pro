@@ -26,7 +26,7 @@ export const Heatmap = () => {
             // Check if this habit was active on this date (simple check: created before)
             // For MVP assume all current habits were active
             totalActive++;
-            if (h.completedDates.includes(dateStr)) {
+            if (h.completions && h.completions[dateStr] === true) {
                 completedCount++;
             }
         });

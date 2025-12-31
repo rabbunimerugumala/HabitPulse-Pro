@@ -25,8 +25,8 @@ export const CategoryPieChart = ({ data }: { data: any[] }) => {
                         paddingAngle={5}
                         dataKey="value"
                     >
-                        {data.map((_, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="rgba(255,255,255,0.1)" />
+                        {data.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color || COLORS[index % COLORS.length]} stroke="rgba(255,255,255,0.1)" />
                         ))}
                     </Pie>
                     <Tooltip
