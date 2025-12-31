@@ -166,7 +166,7 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
                 />
 
                 {/* 7 CLICKABLE CIRCLES - MON-SUN LOGIC */}
-                <div className="flex -space-x-0.5 lg:-space-x-1">
+                <div className="flex gap-0.5 lg:gap-1 -space-x-px lg:-space-x-0.5">
                     {Array(7).fill(0).map((_, i) => {
                         // Calculate specific date for this dot (Monday-based index)
                         const dotDate = addDays(startOfCurrentWeek, i);
