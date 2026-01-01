@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { FaHome, FaList, FaCalendarAlt, FaChartBar, FaCog, FaSignOutAlt, FaFire } from 'react-icons/fa';
+import { FaHome, FaList, FaCalendarAlt, FaChartBar, FaCog, FaSignOutAlt, FaFire, FaUsers } from 'react-icons/fa';
 import { clsx } from 'clsx';
 
 const NAV_ITEMS = [
@@ -47,6 +47,29 @@ export const Sidebar = () => {
                         )}
                     </NavLink>
                 ))}
+
+                {user?.email === 'rabbuni144@gmail.com' && (
+                    <NavLink
+                        to="/admin/users"
+                        className={({ isActive }) => clsx(
+                            "flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden mt-4",
+                            isActive
+                                ? "bg-red-500/10 text-red-400 font-medium shadow-[0_0_20px_rgba(239,68,68,0.15)]"
+                                : "text-gray-400 hover:text-white hover:bg-white/5"
+                        )}
+                    >
+                        {({ isActive }) => (
+                            <>
+                                <div className={clsx(
+                                    "absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 rounded-r-full bg-red-500 transition-all duration-300",
+                                    isActive ? "opacity-100" : "opacity-0 -translate-x-full"
+                                )} />
+                                <FaUsers className={clsx("text-lg", isActive ? "animate-pulse-slow" : "group-hover:scale-110 transition-transform")} />
+                                <span>Manage Users</span>
+                            </>
+                        )}
+                    </NavLink>
+                )}
             </nav>
 
             <div className="pt-6 border-t border-white/5">

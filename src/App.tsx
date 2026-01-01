@@ -12,6 +12,8 @@ import { Analytics } from './pages/Analytics';
 import { Settings } from './pages/Settings';
 import { ProfileSettings } from './pages/settings/ProfileSettings';
 import { HabitDetail } from './pages/HabitDetail';
+import { AdminUsersPage } from './pages/AdminUsersPage';
+import { AdminGuard } from './components/auth/AdminGuard';
 
 // Protected Route Wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
@@ -71,6 +73,11 @@ function App() {
               <ProtectedRoute>
                 <HabitDetail />
               </ProtectedRoute>
+            } />
+            <Route path="/admin/users" element={
+              <AdminGuard>
+                <AdminUsersPage />
+              </AdminGuard>
             } />
           </Routes>
         </Router>
