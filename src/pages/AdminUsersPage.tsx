@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from '../config/supabaseClient';
 import toast from 'react-hot-toast';
 
@@ -40,14 +40,7 @@ export const AdminUsersPage = () => {
 
             if (profilesError) throw new Error(`Profiles Error: ${profilesError.message}`);
 
-            // 2. Fetch Habits
-            const { data: habits, error: habitsError } = await supabase
-                .from('habits')
-                .select('*');
-
-            if (habitsError) throw new Error(`Habits Error: ${habitsError.message}`);
-
-            // 3. Fetch Completions
+            // 2. Fetch Habits with completions directly
             // Optimization: We could join completions on habits, but let's be safe and separate if needed. 
             // Actually, habits -> completions is usually safe standard relation. Let's try select('*, completions(*)') first for habits.
             // If that fails, we can separate. But normally habits have direct FK to completions.
