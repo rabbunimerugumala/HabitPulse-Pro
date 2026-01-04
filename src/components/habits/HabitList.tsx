@@ -245,10 +245,11 @@ export const HabitList = ({ filterCategory = 'All', onHabitClick }: { filterCate
     const { loading, toggleHabit, removeHabit, getHabitsByDate } = useHabits();
     const allTodaysHabits = getHabitsByDate(new Date());
 
-    // Filter by category
-    const todaysHabits = filterCategory === 'All'
+    // Filter by category AND Sort Alphabetically
+    const todaysHabits = (filterCategory === 'All'
         ? allTodaysHabits
-        : allTodaysHabits.filter(h => h.category === filterCategory);
+        : allTodaysHabits.filter(h => h.category === filterCategory)
+    ).sort((a, b) => a.name.localeCompare(b.name));
 
     // Edit Modal State
     const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
