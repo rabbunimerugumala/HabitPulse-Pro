@@ -297,7 +297,12 @@ export const CreateHabitModal = ({ isOpen, onClose, habitToEdit }: CreateHabitMo
                                                     ? "border-white"
                                                     : "border-white/30 text-muted hover:text-white hover:border-white/60"
                                             )}
-                                            style={!COLORS.includes(color) ? { backgroundImage: "linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #8b00ff)" } : {}}
+                                            style={{
+                                                backgroundImage: !COLORS.includes(color)
+                                                    ? 'none'
+                                                    : "linear-gradient(135deg, #EF4444, #F97316, #EAB308, #22C55E, #3B82F6, #A855F7, #EC4899)",
+                                                backgroundColor: !COLORS.includes(color) ? color : 'transparent'
+                                            }}
                                             title="Custom Color"
                                         >
                                             {/* gradient circle */}

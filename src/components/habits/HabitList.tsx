@@ -14,10 +14,13 @@ interface HabitItemProps {
     onToggle: (habit: Habit, dateStr?: string) => void;
     onDelete: (id: string) => void;
     onEdit: (habit: Habit) => void;
+
     onHabitClick?: (habit: Habit) => void;
+    isMenuOpen: boolean;
+    onToggleMenu: (isOpen: boolean) => void;
 }
 
-const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitItemProps) => {
+const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick, isMenuOpen, onToggleMenu }: HabitItemProps) => {
     // Current date logic
     const today = new Date();
     const formattedToday = format(today, 'yyyy-MM-dd');
@@ -26,7 +29,6 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
     // Week logic: Start from Monday
     const startOfCurrentWeek = startOfWeek(today, { weekStartsOn: 1 });
 
-    const [showMenu, setShowMenu] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
 
@@ -34,29 +36,35 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
     const [glowTimeout, setGlowTimeout] = useState<ReturnType<typeof setTimeout> | null>(null);
 
     // Close menu when clicking outside
+    // Close menu when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-                setShowMenu(false);
+            if (isMenuOpen && menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                onToggleMenu(false);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
+    }, [isMenuOpen, onToggleMenu]);
 
     const handleDelete = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (confirm('Are you sure you want to delete this habit?')) {
-            onDelete(habit.id!);
-            toast.success('Habit deleted successfully!');
-        }
-        setShowMenu(false);
+        // Close menu first to prevent UI glitch
+        onToggleMenu(false);
+
+        // Timeout to allow menu to close smoothly before alert
+        setTimeout(() => {
+            if (confirm('Are you sure you want to delete this habit?')) {
+                onDelete(habit.id!);
+                toast.success('Habit deleted successfully!');
+            }
+        }, 100);
     };
 
     const handleEdit = (e: React.MouseEvent) => {
         e.stopPropagation();
+        onToggleMenu(false);
         onEdit(habit);
-        setShowMenu(false);
     };
 
     const handleCardClick = () => {
@@ -215,13 +223,13 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
-                            setShowMenu(!showMenu);
+                            onToggleMenu(!isMenuOpen);
                         }}
                         className="w-7 h-7 lg:w-8 lg:h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-white/10 hover:text-white transition-colors"
                     >
                         <FaEllipsisV size={12} />
                     </button>
-                    {showMenu && (
+                    {isMenuOpen && (
                         <div className="absolute right-0 top-full mt-2 w-40 bg-[#1e1e2e] border border-white/20 rounded-lg shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
                             <button onClick={handleEdit} className="w-full px-4 py-3 text-left text-sm text-gray-200 hover:bg-white/10 flex items-center gap-3 border-b border-white/5"><FaEdit size={14} className="text-blue-400" /> Edit</button>
                             <button onClick={handleDelete} className="w-full px-4 py-3 text-left text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 flex items-center gap-3"><FaTrash size={14} /> Delete</button>
@@ -245,6 +253,9 @@ export const HabitList = ({ filterCategory = 'All', onHabitClick }: { filterCate
     // Edit Modal State
     const [editingHabit, setEditingHabit] = useState<Habit | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+    // Active Menu State
+    const [activeMenuHabitId, setActiveMenuHabitId] = useState<string | null>(null);
 
     const handleEdit = (habit: Habit) => {
         setEditingHabit(habit);
@@ -281,6 +292,8 @@ export const HabitList = ({ filterCategory = 'All', onHabitClick }: { filterCate
                     key={habit.id}
                     className={clsx(
                         "opacity-0 translate-y-8 animate-slideUpFadeIn",
+                        // Critical z-index fix: Ensure the active menu row sits above subsequent rows
+                        activeMenuHabitId === habit.id ? "z-50 relative" : "z-auto"
                     )}
                     style={{ animationDelay: `${300 + index * 100}ms`, animationFillMode: 'forwards' }}
                 >
@@ -290,6 +303,8 @@ export const HabitList = ({ filterCategory = 'All', onHabitClick }: { filterCate
                         onDelete={removeHabit}
                         onEdit={handleEdit}
                         onHabitClick={onHabitClick}
+                        isMenuOpen={activeMenuHabitId === habit.id}
+                        onToggleMenu={(isOpen) => setActiveMenuHabitId(isOpen ? habit.id! : null)}
                     />
                 </div>
             ))}
