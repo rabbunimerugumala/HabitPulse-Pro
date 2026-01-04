@@ -6,6 +6,7 @@ import { Input } from '../components/ui/Input';
 import { supabase } from '../config/supabaseClient';
 import { FaBullseye, FaChartLine, FaCheck, FaLeaf, FaMedal } from 'react-icons/fa';
 import { clsx } from 'clsx';
+import { AuthLayout } from '../components/auth/AuthLayout';
 
 const STEPS = [
     { title: 'Profile Setup', description: 'Tell us a bit about yourself' },
@@ -91,10 +92,10 @@ export const Onboarding = () => {
     const prevStep = () => setStep(s => s - 1);
 
     return (
-        <div className="min-h-screen bg-background flex flex-col">
-            {/* Header / Progress */}
-            <header className="p-6">
-                <div className="max-w-xl mx-auto">
+        <AuthLayout>
+            <div className="w-full h-full flex flex-col">
+                {/* Header / Progress */}
+                <div className="mb-8">
                     <div className="flex justify-between items-center mb-4">
                         <span className="text-sm font-medium text-gray-400">Step {step + 1} of {STEPS.length}</span>
                         <div className="flex gap-2">
@@ -103,14 +104,14 @@ export const Onboarding = () => {
                             ))}
                         </div>
                     </div>
-                    <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">{STEPS[step].title}</h1>
-                    <p className="text-gray-400">{STEPS[step].description}</p>
+                    <div className="animate-in fade-in slide-in-from-left-2 duration-300" key={`title-${step}`}>
+                        <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">{STEPS[step].title}</h1>
+                        <p className="text-gray-400 mt-1">{STEPS[step].description}</p>
+                    </div>
                 </div>
-            </header>
 
-            {/* Content */}
-            <main className="flex-1 p-6 flex items-center justify-center">
-                <div className="w-full max-w-xl glass-card p-8 animate-in fade-in slide-in-from-bottom-4">
+                {/* Content */}
+                <div className="flex-1 animate-in fade-in slide-in-from-right-4 duration-300" key={step}>
                     {/* Step 0: Profile */}
                     {step === 0 && (
                         <div className="space-y-4">
@@ -120,6 +121,7 @@ export const Onboarding = () => {
                                 value={formData.displayName}
                                 onChange={handleInputChange}
                                 placeholder="How should we call you?"
+                                className="bg-surface/50 border-white/10 focus:border-neon-blue"
                             />
                             <div className="space-y-1">
                                 <label className="text-sm font-medium text-gray-300">Age Group</label>
@@ -127,7 +129,7 @@ export const Onboarding = () => {
                                     name="ageGroup"
                                     value={formData.ageGroup}
                                     onChange={handleInputChange}
-                                    className="w-full bg-surface/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-blue/50"
+                                    className="w-full bg-surface/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-neon-blue/50 transition-colors"
                                 >
                                     <option value="">Select Age Group</option>
                                     <option value="18-24">18-24</option>
@@ -141,21 +143,23 @@ export const Onboarding = () => {
 
                     {/* Step 1: Focus Areas */}
                     {step === 1 && (
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {FOCUS_AREAS.map(area => (
                                 <button
                                     key={area.id}
                                     onClick={() => toggleFocusArea(area.id)}
                                     className={clsx(
-                                        "p-4 rounded-xl border transition-all text-left flex flex-col gap-2",
+                                        "p-4 rounded-xl border transition-all text-left flex flex-col gap-2 hover:scale-[1.02]",
                                         formData.focusAreas.includes(area.id)
-                                            ? "bg-neon-blue/10 border-neon-blue text-white"
-                                            : "bg-surface/30 border-white/5 text-gray-400 hover:bg-white/5"
+                                            ? "bg-neon-blue/10 border-neon-blue text-white shadow-[0_0_15px_rgba(59,130,246,0.2)]"
+                                            : "bg-surface/30 border-white/5 text-gray-400 hover:bg-white/5 hover:border-white/10"
                                     )}
                                 >
-                                    <area.icon className={clsx("text-2xl", formData.focusAreas.includes(area.id) ? "text-neon-blue" : "text-gray-500")} />
+                                    <div className="flex justify-between w-full">
+                                        <area.icon className={clsx("text-2xl", formData.focusAreas.includes(area.id) ? "text-neon-blue" : "text-gray-500")} />
+                                        {formData.focusAreas.includes(area.id) && <FaCheck className="text-neon-blue animate-in zoom-in spin-in-180 duration-300" />}
+                                    </div>
                                     <span className="font-medium">{area.label}</span>
-                                    {formData.focusAreas.includes(area.id) && <FaCheck className="absolute top-4 right-4 text-neon-blue" />}
                                 </button>
                             ))}
                         </div>
@@ -163,28 +167,28 @@ export const Onboarding = () => {
 
                     {/* Step 2: Goal / Experience */}
                     {step === 2 && (
-                        <div className="space-y-4">
-                            <p className="text-lg font-medium">What is your experience with habit tracking?</p>
+                        <div className="space-y-3">
+                            <p className="text-lg font-medium text-white/90">What is your experience with habit tracking?</p>
                             {EXPERIENCE_LEVELS.map(level => (
                                 <button
                                     key={level.id}
                                     onClick={() => setFormData(prev => ({ ...prev, experienceLevel: level.id }))}
                                     className={clsx(
-                                        "w-full p-4 rounded-xl border text-left capitalize transition-all",
+                                        "w-full p-4 rounded-xl border text-left capitalize transition-all hover:scale-[1.01]",
                                         formData.experienceLevel === level.id
-                                            ? "bg-neon-purple/10 border-neon-purple text-white"
-                                            : "bg-surface/30 border-white/5 text-gray-400 hover:bg-white/5"
+                                            ? "bg-neon-purple/10 border-neon-purple text-white shadow-[0_0_15px_rgba(168,85,247,0.2)]"
+                                            : "bg-surface/30 border-white/5 text-gray-400 hover:bg-white/5 hover:border-white/10"
                                     )}
                                 >
                                     <div className="flex items-center justify-between relative z-10">
                                         <div>
-                                            <h3 className={clsx("font-semibold", formData.experienceLevel === level.id ? "text-white" : "text-gray-300")}>
+                                            <h3 className={clsx("font-semibold mb-1", formData.experienceLevel === level.id ? "text-white" : "text-gray-300")}>
                                                 {level.label}
                                             </h3>
                                             <p className="text-sm text-gray-500">{level.desc}</p>
                                         </div>
                                         {formData.experienceLevel === level.id && (
-                                            <div className="w-6 h-6 bg-neon-purple rounded-full flex items-center justify-center text-xs">
+                                            <div className="w-6 h-6 bg-neon-purple rounded-full flex items-center justify-center text-xs text-white animate-in zoom-in duration-200">
                                                 <FaCheck />
                                             </div>
                                         )}
@@ -193,15 +197,27 @@ export const Onboarding = () => {
                             ))}
                         </div>
                     )}
-
-                    <div className="mt-8 flex justify-end gap-3">
-                        {step > 0 && <Button variant="secondary" onClick={prevStep}>Back</Button>}
-                        <Button onClick={handleNext} disabled={loading} className="w-full sm:w-auto">
-                            {loading ? 'Setting up...' : step === STEPS.length - 1 ? 'Finish Setup' : 'Continue'}
-                        </Button>
-                    </div>
                 </div>
-            </main>
-        </div>
+
+                <div className="mt-8 flex items-center justify-between gap-3 pt-4 border-t border-white/5">
+                    {step > 0 ? (
+                        <Button
+                            variant="secondary"
+                            onClick={prevStep}
+                            className="flex-1 sm:flex-none sm:w-32"
+                        >
+                            Back
+                        </Button>
+                    ) : <div />} {/* Spacer */}
+                    <Button
+                        onClick={handleNext}
+                        disabled={loading}
+                        className="flex-1 sm:flex-none sm:w-auto min-w-[140px] bg-gradient-to-r from-neon-blue to-neon-purple hover:opacity-90 transition-all shadow-lg shadow-neon-blue/20"
+                    >
+                        {loading ? 'Setting up...' : step === STEPS.length - 1 ? 'Finish Setup' : 'Continue'}
+                    </Button>
+                </div>
+            </div>
+        </AuthLayout>
     );
 };

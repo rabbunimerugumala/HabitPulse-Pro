@@ -7,10 +7,17 @@ interface AuthLayoutProps {
 
 export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
     return (
-        <main className="min-h-screen flex items-center justify-center bg-[#020312] p-4 font-sans">
-            <div className="w-full max-w-5xl rounded-3xl bg-white/5 border border-white/10 backdrop-blur-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row">
-                {/* Left: About app */}
-                <section className="md:w-[55%] px-8 py-10 md:p-12 bg-gradient-to-b from-[#210635]/80 to-[#020312] flex flex-col justify-center relative overflow-hidden">
+        <main className="min-h-screen flex items-center justify-center bg-[#020312] p-4 font-sans relative overflow-hidden">
+            {/* Animated Background Gradients */}
+            <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+                <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-neon-purple/10 blur-[100px] animate-pulse" />
+                <div className="absolute top-[20%] -right-[10%] w-[40%] h-[40%] rounded-full bg-neon-blue/10 blur-[100px] animate-pulse delay-1000" />
+                <div className="absolute -bottom-[20%] left-[20%] w-[60%] h-[60%] rounded-full bg-[#210635]/20 blur-[120px] animate-pulse delay-700" />
+            </div>
+
+            <div className="w-full max-w-5xl rounded-3xl bg-white/5 border border-white/10 backdrop-blur-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row relative z-10">
+                {/* Left: About app - Hidden on mobile */}
+                <section className="hidden md:flex md:w-[55%] px-8 py-10 md:p-12 bg-gradient-to-b from-[#210635]/80 to-[#020312] flex-col justify-center relative overflow-hidden">
                     {/* Decorative Elements */}
                     <div className="absolute top-0 left-0 w-full h-full bg-[url('/grid.svg')] opacity-10" />
                     <div className="absolute top-[-20%] left-[-20%] w-64 h-64 bg-neon-purple/20 rounded-full blur-3xl opacity-40 animate-pulse" />
@@ -53,7 +60,15 @@ export const AuthLayout: React.FC<AuthLayoutProps> = ({ children }) => {
                 </section>
 
                 {/* Right: Auth form */}
-                <section className="md:w-[45%] px-6 py-10 md:p-12 bg-black/40 flex flex-col justify-center">
+                <section className="w-full md:w-[45%] px-6 py-8 md:p-12 bg-black/40 flex flex-col justify-center relative">
+                    {/* Mobile Header */}
+                    <div className="md:hidden mb-8 text-center">
+                        <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-neon-blue to-neon-purple">
+                            HabitPulse Pro
+                        </h1>
+                        <p className="text-sm text-gray-400 mt-1">Build consistent habits</p>
+                    </div>
+
                     {children}
                 </section>
             </div>
