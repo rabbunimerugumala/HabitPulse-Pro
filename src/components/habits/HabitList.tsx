@@ -187,13 +187,17 @@ const HabitItem = ({ habit, onToggle, onDelete, onEdit, onHabitClick }: HabitIte
                                     isToday ? "hover:scale-125 hover:shadow-lg active:scale-110 cursor-pointer" : "cursor-default",
 
                                     isCompleted
-                                        ? "bg-emerald-400 border-emerald-400/50 shadow-emerald-500/25"
+                                        ? "shadow-[0_0_10px_var(--dot-color)] border-transparent" // bg is handled by style
                                         : "bg-gray-600/40 border-gray-500/30",
 
                                     // Special styling for today if not completed? 
                                     // Make today pulse if not done? (Optional, not requested but nice)
                                     !isCompleted && isToday && "border-orange-500/40 animate-pulse"
                                 )}
+                                style={isCompleted ? {
+                                    backgroundColor: '#22c55e',
+                                    '--dot-color': '#22c55e66' // for shadow
+                                } as React.CSSProperties : {}}
                                 title={format(dotDate, 'EEE, MMM d')}
                             >
                                 {/* No checkmark needed, color indicates state */}

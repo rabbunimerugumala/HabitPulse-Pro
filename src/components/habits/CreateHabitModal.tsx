@@ -7,6 +7,7 @@ import { clsx } from 'clsx';
 import { createPortal } from 'react-dom';
 import { type Habit } from '../../services/habitService';
 import { ICON_MAP } from '../../utils/habitIcons';
+import ColorPickerDialog from '../ui/ColorPickerDialog';
 
 interface CreateHabitModalProps {
     isOpen: boolean;
@@ -43,7 +44,11 @@ export const CreateHabitModal = ({ isOpen, onClose, habitToEdit }: CreateHabitMo
     const [color, setColor] = useState(COLORS[0]);
     const [frequency, setFrequency] = useState<'daily' | 'weekly'>('daily');
     const [selectedDays, setSelectedDays] = useState<number[]>([]); // 0-6
-    // Reminder removed
+
+
+    // Custom Color Picker Dialog State
+    const [isColorDialogOpen, setIsColorDialogOpen] = useState(false);
+    const [tempColor, setTempColor] = useState(color);
 
     // Load initial data
     useEffect(() => {
@@ -119,9 +124,9 @@ export const CreateHabitModal = ({ isOpen, onClose, habitToEdit }: CreateHabitMo
     const isStep2Valid = frequency === 'daily' || selectedDays.length > 0;
 
     return createPortal(
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={onClose}>
             <div
-                className="relative w-full max-w-md md:max-w-xl glass-card max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200"
+                className="relative w-full max-w-md md:max-w-xl glass-card max-h-[90vh] overflow-y-auto no-scrollbar animate-in fade-in slide-in-from-bottom-4 duration-300"
                 onClick={e => e.stopPropagation()}
             >
                 <div className="p-5 md:p-8">
@@ -268,14 +273,47 @@ export const CreateHabitModal = ({ isOpen, onClose, habitToEdit }: CreateHabitMo
                                     {COLORS.map(c => (
                                         <button
                                             key={c}
-                                            onClick={() => setColor(c)}
+                                            onClick={() => {
+                                                setColor(c);
+                                            }}
                                             className={clsx(
                                                 "w-8 h-8 md:w-10 md:h-10 rounded-full border-2 transition-all",
-                                                color === c ? "border-white scale-110 shadow-[0_0_12px_currentColor]" : "border-transparent opacity-80 hover:opacity-100 hover:scale-110"
+                                                color === c ? "border-white scale-110 shadow-[0_0_12px_currentColor]" : "border-transparent opacity-80 hover:opacity=100 hover:scale-110"
                                             )}
                                             style={{ backgroundColor: c, color: c }}
                                         />
                                     ))}
+
+                                    {/* Custom Color Button */}
+                                    <div className="relative">
+                                        <button
+                                            onClick={() => {
+                                                setTempColor(color);
+                                                setIsColorDialogOpen(true);
+                                            }}
+                                            className={clsx(
+                                                "w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-dashed flex items-center justify-center transition-all",
+                                                !COLORS.includes(color)
+                                                    ? "border-white"
+                                                    : "border-white/30 text-muted hover:text-white hover:border-white/60"
+                                            )}
+                                            style={!COLORS.includes(color) ? { backgroundImage: "linear-gradient(45deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #8b00ff)" } : {}}
+                                            title="Custom Color"
+                                        >
+                                            {/* gradient circle */}
+                                        </button>
+                                        {/* Color Picker Dialog */}
+                                        <ColorPickerDialog
+                                            isOpen={isColorDialogOpen}
+                                            initialColor={tempColor}
+                                            onConfirm={(newColor) => {
+                                                setColor(newColor);
+                                                setIsColorDialogOpen(false);
+                                            }}
+                                            onClose={() => setIsColorDialogOpen(false)}
+                                        />
+                                    </div>
+
                                 </div>
                             </div>
 
