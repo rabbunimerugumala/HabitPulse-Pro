@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../config/supabaseClient';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
+import { FiArrowLeft } from 'react-icons/fi';
 
 interface Completion {
     id: string;
@@ -17,6 +19,7 @@ interface UserProfile {
     id: string;
     email: string | null;
     full_name: string | null;
+    display_name: string | null;
 }
 
 interface UserData extends UserProfile {
@@ -27,6 +30,7 @@ export const AdminUsersPage = () => {
     const [users, setUsers] = useState<UserData[]>([]);
     const [loading, setLoading] = useState(true);
     const [debugError, setDebugError] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     const loadUsers = async () => {
         try {
@@ -95,9 +99,18 @@ export const AdminUsersPage = () => {
     return (
         <div className="max-w-6xl mx-auto p-8 min-h-screen">
             <div className="flex items-center justify-between mb-8">
-                <div>
-                    <h1 className="text-3xl font-black text-white mb-2">👥 User Management</h1>
-                    <p className="text-gray-400">Manage registered users and their data</p>
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="p-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-colors text-gray-300 hover:text-white"
+                        title="Go Back"
+                    >
+                        <FiArrowLeft size={20} />
+                    </button>
+                    <div>
+                        <h1 className="text-3xl font-black text-white mb-2">👥 User Management</h1>
+                        <p className="text-gray-400">Manage registered users and their data</p>
+                    </div>
                 </div>
                 <button
                     onClick={loadUsers}
@@ -141,10 +154,12 @@ export const AdminUsersPage = () => {
                                         <td className="p-5">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-white/10 text-white font-medium">
-                                                    {user.full_name?.[0] || user.email?.[0] || 'U'}
+                                                    {user.display_name?.[0] || user.full_name?.[0] || user.email?.[0] || 'U'}
                                                 </div>
                                                 <div>
-                                                    <div className="font-semibold text-white group-hover:text-primary-300 transition-colors">{user.full_name || 'Unnamed User'}</div>
+                                                    <div className="font-semibold text-white group-hover:text-primary-300 transition-colors">
+                                                        {user.display_name || user.full_name || user.email?.split('@')[0] || 'Unnamed User'}
+                                                    </div>
                                                     <div className="text-gray-500 text-xs font-mono">{user.email || 'No email'}</div>
                                                     <div className="text-gray-600 text-[10px] font-mono mt-0.5 opacity-50">{user.id}</div>
                                                 </div>

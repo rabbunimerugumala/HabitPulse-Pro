@@ -4,6 +4,7 @@ import { AppLayout } from '../../components/layout/AppLayout';
 import { BackButton } from '../../components/ui/BackButton';
 import { useAuth } from '../../context/AuthContext';
 import { Input } from '../../components/ui/Input';
+import { supabase } from '../../config/supabaseClient';
 
 export const ProfileSettings = () => {
     const { user, updateProfile } = useAuth();
@@ -22,6 +23,8 @@ export const ProfileSettings = () => {
     const handleSave = async () => {
         try {
             setLoading(true);
+
+            // 1. Update Auth Metadata (Supabase Auth)
             await updateProfile({
                 displayName: formData.displayName,
                 photoURL: formData.picture,
@@ -30,8 +33,28 @@ export const ProfileSettings = () => {
                     location: formData.location
                 }
             });
-            toast.success('Profile updated successfully!');
+
+            // 2. Sync to Profiles Table (Database)
+            // This ensures Admin Users page sees the up-to-date display name
+            const { error: profileError } = await supabase
+                .from('profiles')
+                .update({
+                    display_name: formData.displayName,
+                    // We can also sync other fields if they exist in profiles table, but display_name is the critical one requested
+                })
+                .eq('id', user?.id);
+
+            if (profileError) {
+                console.error('Error syncing to profiles table:', profileError);
+                // We don't throw here to avoid failing the whole save if just the DB sync fails, 
+                // but ideally they should be consistent.
+                toast.error('Profile saved, but public name might not update everywhere immediately.');
+            } else {
+                toast.success('Profile updated successfully!');
+            }
+
         } catch (error) {
+            console.error('Profile update error:', error);
             toast.error('Failed to update profile');
         } finally {
             setLoading(false);
