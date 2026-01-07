@@ -19,7 +19,7 @@ export const CompletionTrendChart = ({ data }: { data: any[] }) => {
     return (
         <div className="w-full h-[300px] min-w-0">
             <ResponsiveContainer width="100%" height="100%" minWidth={0}>
-                <LineChart data={data}>
+                <LineChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
                     <XAxis
                         dataKey="date"

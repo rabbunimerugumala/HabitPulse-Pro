@@ -28,7 +28,7 @@ export const Analytics = () => {
             }
         };
         loadInsight();
-    }, [user]);
+    }, [user?.id]);
 
 
     const generateInsights = async () => {
