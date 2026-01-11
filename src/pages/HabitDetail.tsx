@@ -9,7 +9,7 @@ import { FaFire, FaCheckCircle, FaCalendarAlt, FaChevronLeft, FaChevronRight, Fa
 
 export const HabitDetail = () => {
     const { id } = useParams();
-    const { habits } = useHabits();
+    const { habits, toggleHabit } = useHabits();
     const habit = habits.find(h => h.id === id);
 
     const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -143,23 +143,39 @@ export const HabitDetail = () => {
                         <div className="grid grid-cols-7 gap-1 md:gap-2">
                             {calendarDeys.map((day) => {
                                 const dateStr = format(day, 'yyyy-MM-dd');
-                                const isCompleted = habit.completions && habit.completions[dateStr];
+                                const isCompleted = habit.completions && habit.completions[dateStr] === true;
                                 const isCurrentMonth = isSameMonth(day, currentMonth);
                                 const isToday = isSameDay(day, new Date());
                                 const dayNumber = format(day, 'd');
                                 const tooltipText = format(day, 'MMM d, yyyy');
 
+                                // Interaction Logic: Can only toggle Today or Past
+                                const isFuture = day > new Date();
+                                const isClickable = !isFuture;
+
+                                const handleToggle = async () => {
+                                    if (!isClickable) return;
+                                    await toggleHabit(habit, dateStr);
+                                };
+
                                 return (
-                                    <div
+                                    <button
                                         key={dateStr}
+                                        onClick={handleToggle}
+                                        disabled={!isClickable}
                                         className={clsx(
                                             "aspect-square rounded-lg flex items-center justify-center text-sm relative transition-all duration-300 group",
                                             !isCurrentMonth && "opacity-20 grayscale",
                                             isCompleted
                                                 ? "bg-[var(--habit-color)] text-white shadow-lg shadow-[var(--habit-glow)] scale-100"
                                                 : "bg-white/5 text-gray-500 hover:bg-white/10",
+
+                                            // Today styling
                                             isToday && !isCompleted && "ring-1 ring-orange-500 text-orange-500",
-                                            isToday && isCompleted && "ring-2 ring-white"
+                                            isToday && isCompleted && "ring-2 ring-white",
+
+                                            // Clickable cues
+                                            isClickable ? "cursor-pointer hover:scale-110 active:scale-95" : "cursor-default opacity-50"
                                         )}
                                         style={{
                                             '--habit-color': habit.color || '#3b82f6',
@@ -178,7 +194,7 @@ export const HabitDetail = () => {
                                             {/* Little arrow at bottom */}
                                             <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1 border-4 border-transparent border-t-gray-900" />
                                         </div>
-                                    </div>
+                                    </button>
                                 );
                             })}
                         </div>

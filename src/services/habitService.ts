@@ -105,11 +105,6 @@ export const toggleHabitCompletion = async (habit: Habit, dateStr: string) => {
             .eq('habit_id', habit.id)
             .eq('date', dateStr);
         if (error) throw error;
-
-        // DECREMENT streak logic (simplified)
-        const newStreak = Math.max(0, habit.streak - 1);
-        await supabase.from('habits').update({ current_streak: newStreak }).eq('id', habit.id);
-
     } else {
         // INSERT completion
         const { error } = await supabase
@@ -121,11 +116,59 @@ export const toggleHabitCompletion = async (habit: Habit, dateStr: string) => {
                 completed: true
             });
         if (error) throw error;
-
-        // INCREMENT streak
-        const newStreak = habit.streak + 1;
-        await supabase.from('habits').update({ current_streak: newStreak }).eq('id', habit.id);
     }
+
+    // RECALCULATE streak accurately
+    const newStreak = await calculateHabitStreak(habit.id);
+    await supabase.from('habits').update({ current_streak: newStreak }).eq('id', habit.id);
+};
+
+export const calculateHabitStreak = async (habitId: string) => {
+    const today = new Date();
+
+    // Fetch all completions for this habit
+    const { data } = await supabase
+        .from('completions')
+        .select('date')
+        .eq('habit_id', habitId)
+        .eq('completed', true)
+        .order('date', { ascending: false });
+
+    if (!data || data.length === 0) return 0;
+
+    const uniqueDates = Array.from(new Set(data.map(d => d.date)));
+    const sortedDates = uniqueDates.sort((a, b) => b.localeCompare(a)); // Descending
+
+    let streak = 0;
+    const todayStr = format(today, 'yyyy-MM-dd');
+    const yesterdayStr = format(subDays(today, 1), 'yyyy-MM-dd');
+
+    // Check where to start counting
+    let checkDateStr = todayStr;
+
+    // If today is NOT completed, check if yesterday was completed to keep the streak alive
+    if (!sortedDates.includes(todayStr)) {
+        if (sortedDates.includes(yesterdayStr)) {
+            checkDateStr = yesterdayStr;
+        } else {
+            return 0; // Streak broken
+        }
+    }
+
+    // Iterate backwards
+    let currentDate = new Date(checkDateStr);
+
+    while (true) {
+        const dStr = format(currentDate, 'yyyy-MM-dd');
+        if (sortedDates.includes(dStr)) {
+            streak++;
+            currentDate = subDays(currentDate, 1);
+        } else {
+            break;
+        }
+    }
+
+    return streak;
 };
 
 export const updateHabit = async (habitId: string, updates: Partial<Habit>) => {
